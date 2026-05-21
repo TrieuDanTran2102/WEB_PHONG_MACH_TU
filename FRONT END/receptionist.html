@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Phòng Khám - Tiếp Tân</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1f3a93 0%, #2d5f8d 100%);
+            color: white;
+            overflow-y: auto;
+            padding-top: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-brand h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-brand p {
+            font-size: 12px;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin: 0;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #4db8ff;
+            padding-left: 25px;
+        }
+
+        .nav-menu i {
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .main-container {
+            margin-left: 280px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f3a93;
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-info p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-logout:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 20px !important;
+            font-weight: 700;
+            border: none !important;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #1f3a93;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control,
+        .form-select {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .table {
+            margin-top: 20px;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-weight: 700;
+            padding: 15px;
+        }
+
+        .table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: #f5f5f5;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            color: white;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .financial-summary {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .summary-item:last-child {
+            margin-bottom: 0;
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
+            color: #1f3a93;
+            font-size: 18px;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box input {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-container {
+                margin-left: 200px;
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 150px;
+                padding: 10px 0;
+            }
+
+            .main-container {
+                margin-left: 150px;
+                padding: 10px;
+            }
+
+            .sidebar-brand {
+                padding: 0 10px 15px;
+            }
+
+            .nav-menu a {
+                padding: 12px 10px;
+                font-size: 13px;
+            }
+
+            .nav-menu i {
+                margin-right: 8px;
+                font-size: 14px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR NAVIGATION -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h3><i class="bi bi-hospital"></i> Quản Lý Phòng Khám</h3>
+            <p>Hệ Thống Tiếp Tân</p>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="#" class="nav-link active" data-section="profile"><i class="bi bi-person-circle"></i> Hồ Sơ Cá Nhân</a></li>
+            <li><a href="#" class="nav-link" data-section="reception"><i class="bi bi-file-earmark-text"></i> Tiếp Nhận</a></li>
+            <li><a href="#" class="nav-link" data-section="patient-record"><i class="bi bi-person-vcard"></i> Hồ Sơ BN</a></li>
+            <li><a href="#" class="nav-link" data-section="patient-lookup"><i class="bi bi-search"></i> Tra Cứu BN</a></li>
+            <li><a href="#" class="nav-link" data-section="exam-form"><i class="bi bi-stethoscope"></i> Phiếu Khám</a></li>
+            <li><a href="#" class="nav-link" data-section="exam-lookup"><i class="bi bi-search-heart"></i> Tra Cứu Khám</a></li>
+            <li><a href="#" class="nav-link" data-section="medicine-lookup"><i class="bi bi-capsule"></i> Thuốc</a></li>
+            <li><a href="#" class="nav-link" data-section="disease-lookup"><i class="bi bi-clipboard-pulse"></i> Loại Bệnh</a></li>
+            <li><a href="#" class="nav-link" data-section="invoice"><i class="bi bi-receipt"></i> Hóa Đơn</a></li>
+        </ul>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="main-container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1 id="page-title">Hồ Sơ Cá Nhân</h1>
+            <div class="header-right">
+                <div class="user-info">
+                    <p>Chào, <strong id="current-user">Nguyễn Nhâm</strong></p>
+                    <p style="font-size: 12px; color: #999;">Nhân viên Tiếp tân</p>
+                </div>
+                <button class="btn btn-logout btn-sm" onclick="handleLogout()"><i class="bi bi-box-arrow-right"></i> Đăng Xuất</button>
+            </div>
+        </div>
+
+        <!-- PROFILE SECTION -->
+        <div id="profile" class="content-section active">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-person-circle"></i> Hồ Sơ Cá Nhân - Nhân Viên Tiếp Tân
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px; align-items: start;">
+                        <!-- Profile Avatar Section -->
+                        <div style="text-align: center;">
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                                <i class="bi bi-person-fill" style="font-size: 80px; color: white;"></i>
+                            </div>
+                            <h3 style="margin: 15px 0 0 0; color: #1f3a93;" id="profile-name">Nguyễn Nhâm</h3>
+                            <p style="margin: 5px 0; color: #666; font-size: 14px;" id="profile-position">Nhân Viên Tiếp Tân</p>
+                            <p style="margin: 10px 0; color: #999; font-size: 12px;" id="profile-department">Phòng Tiếp Tân</p>
+                        </div>
+
+                        <!-- Profile Information Section -->
+                        <div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                                <!-- Left Column -->
+                                <div>
+                                    <h5 style="color: #1f3a93; margin-bottom: 15px; font-weight: 700; border-bottom: 2px solid #667eea; padding-bottom: 10px;">Thông Tin Cơ Bản</h5>
+                                    
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">Mã Nhân Viên</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;" id="profile-employee-id">NV001</p>
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">Ngày Sinh</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;" id="profile-dob">15/05/1995</p>
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">Giới Tính</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;" id="profile-gender">Nữ</p>
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">CCCD</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;" id="profile-citizen">123456789012</p>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column -->
+                                <div>
+                                    <h5 style="color: #1f3a93; margin-bottom: 15px; font-weight: 700; border-bottom: 2px solid #667eea; padding-bottom: 10px;">Thông Tin Liên Hệ</h5>
+                                    
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">Số Điện Thoại</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;" id="profile-phone">0901234567</p>
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">Email</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;" id="profile-email">le.thi.thu@clinic.com</p>
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">Địa Chỉ</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;" id="profile-address">123 Đường Trần Hưng Đạo, TP.HCM</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Work Information -->
+                            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                                <h5 style="color: #1f3a93; margin-bottom: 15px; font-weight: 700; border-bottom: 2px solid #667eea; padding-bottom: 10px;">Thông Tin Công Việc</h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                    <div>
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">Phòng Ban</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;" id="profile-dept">Phòng Tiếp Tân</p>
+                                    </div>
+                                    <div>
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">Chức Vụ</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;" id="profile-title">Nhân Viên</p>
+                                    </div>
+                                    <div>
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">Ngày Bắt Đầu Làm Việc</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;" id="profile-start-date">01/03/2022</p>
+                                    </div>
+                                    <div>
+                                        <label style="font-weight: 600; color: #666; font-size: 13px; display: block; margin-bottom: 5px;">Trạng Thái</label>
+                                        <p style="margin: 0; color: #1f3a93; font-weight: 600;"><span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">Đang Làm Việc</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. PATIENT RECEPTION FORM -->
+        <div id="reception" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-file-earmark-text"></i> Lập Phiếu Tiếp Nhận Bệnh Nhân
+                </div>
+                <div class="card-body">
+                    <div id="receptionAlert"></div>
+                    <form id="receptionForm">
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Mã Bệnh Nhân</label>
+                                <input type="text" id="patientId" class="form-control" placeholder="BN001" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Ngày Tiếp Nhận</label>
+                                <input type="date" id="receptionDate" class="form-control" required>
+                            </div>
+                            <div>
+                                <label class="form-label">STT</label>
+                                <input type="number" id="receptionOrder" class="form-control" placeholder="1" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Họ và Tên</label>
+                                <input type="text" id="patientName" class="form-control" placeholder="Nguyễn Văn A" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Ngày Sinh</label>
+                                <input type="date" id="patientDob" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Giới Tính</label>
+                                <select id="patientGender" class="form-select" required>
+                                    <option value="">-- Chọn --</option>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">CCCD</label>
+                                <input type="text" id="patientCitizen" class="form-control" placeholder="001234567890" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Số Điện Thoại</label>
+                                <input type="tel" id="patientPhone" class="form-control" placeholder="0901234567" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Địa Chỉ</label>
+                                <input type="text" id="patientAddress" class="form-control" placeholder="123 Đường ABC, TP.HCM" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Tiếp Nhận</button>
+                        <button type="reset" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Đặt Lại</button>
+                    </form>
+                    <p style="margin-top: 20px; color: #666; font-size: 13px;">
+                        <strong>📋 Ghi chú:</strong> Phòng khám chỉ chấp nhận tối đa 40 bệnh nhân/ngày. Hệ thống sẽ cảnh báo khi vượt quá giới hạn.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. CREATE PATIENT RECORD -->
+        <div id="patient-record" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-person-vcard"></i> Lập Hồ Sơ Bệnh Nhân
+                </div>
+                <div class="card-body">
+                    <form id="patientRecordForm">
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Mã Bệnh Nhân</label>
+                                <input type="text" class="form-control" placeholder="BN001" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Họ và Tên</label>
+                                <input type="text" class="form-control" placeholder="Nguyễn Văn A" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Ngày Sinh</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Giới Tính</label>
+                                <select class="form-select" required>
+                                    <option value="">-- Chọn --</option>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">CCCD</label>
+                                <input type="text" class="form-control" placeholder="001234567890" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Số Điện Thoại</label>
+                                <input type="tel" class="form-control" placeholder="0901234567" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Địa Chỉ</label>
+                            <input type="text" class="form-control" placeholder="123 Đường ABC, TP.HCM" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Lập Hồ Sơ</button>
+                        <button type="reset" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Đặt Lại</button>
+                    </form>
+
+                    <h5 style="margin-top: 30px; margin-bottom: 15px; color: #1f3a93; font-weight: 700;">
+                        <i class="bi bi-clock-history"></i> Lịch Sử Khám Bệnh (5 Năm Gần Đây)
+                    </h5>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã Phiếu Khám</th>
+                                <th>Loại Bệnh</th>
+                                <th>Ngày Khám</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medicalHistoryTable">
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">Không có dữ liệu</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. PATIENT LOOKUP -->
+        <div id="patient-lookup" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-search"></i> Tra Cứu Bệnh Nhân
+                </div>
+                <div class="card-body">
+                    <div class="search-box">
+                        <input type="text" id="patientSearchInput" class="form-control" placeholder="Nhập mã bệnh nhân hoặc tên...">
+                        <button class="btn btn-primary" onclick="searchPatient()"><i class="bi bi-search"></i> Tìm Kiếm</button>
+                    </div>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mã Bệnh Nhân</th>
+                                <th>Họ và Tên</th>
+                                <th>Năm Sinh</th>
+                                <th>Giới Tính</th>
+                                <th>Ngày Tiếp Nhận</th>
+                                <th>Ghi Chú</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientSearchResults">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">Nhập thông tin tìm kiếm...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. CREATE MEDICAL EXAMINATION FORM -->
+        <div id="exam-form" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-stethoscope"></i> Lập Phiếu Khám Bệnh
+                </div>
+                <div class="card-body">
+                    <form id="examForm">
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Mã Phiếu Khám</label>
+                                <input type="text" class="form-control" placeholder="KH001" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Ngày Khám</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Họ và Tên</label>
+                                <input type="text" class="form-control" placeholder="Nguyễn Văn A" required>
+                            </div>
+                            <div>
+                                <label class="form-label">CCCD</label>
+                                <input type="text" class="form-control" placeholder="001234567890" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Địa Chỉ</label>
+                                <input type="text" class="form-control" placeholder="123 Đường ABC, TP.HCM" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Ngày Sinh</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Giới Tính</label>
+                                <select class="form-select" required>
+                                    <option value="">-- Chọn --</option>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Số Điện Thoại</label>
+                                <input type="tel" class="form-control" placeholder="0901234567" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Triệu Chứng</label>
+                                <textarea class="form-control" placeholder="Mô tả triệu chứng..." required></textarea>
+                            </div>
+                            <div>
+                                <label class="form-label">Chẩn Đoán</label>
+                                <textarea class="form-control" placeholder="Chẩn đoán của bác sĩ..." required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Loại Bệnh <span class="text-danger">*</span></label>
+                                <select id="diseaseType" class="form-select" required>
+                                    <option value="">-- Chọn (Tối đa 5 loại) --</option>
+                                    <option value="Cảm Cúm">Cảm Cúm</option>
+                                    <option value="Viêm Phế Quản">Viêm Phế Quản</option>
+                                    <option value="Đau Đầu">Đau Đầu</option>
+                                    <option value="Rối Loạn Tiêu Hóa">Rối Loạn Tiêu Hóa</option>
+                                    <option value="Viêm Tai Mũi Họng">Viêm Tai Mũi Họng</option>
+                                </select>
+                                <small class="text-muted">Chỉ hỗ trợ 5 loại bệnh</small>
+                            </div>
+                        </div>
+
+                        <h5 style="margin-top: 20px; margin-bottom: 15px; color: #1f3a93; font-weight: 700;">
+                            <i class="bi bi-heart-pulse"></i> Chỉ Số Sức Khỏe
+                        </h5>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Nhịp Tim (lần/phút)</label>
+                                <input type="number" class="form-control" placeholder="75" min="0" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Nhiệt Độ (°C)</label>
+                                <input type="number" step="0.1" class="form-control" placeholder="36.5" min="0" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Huyết Áp (mmHg)</label>
+                                <input type="text" class="form-control" placeholder="120/80" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Chiều Cao (cm)</label>
+                                <input type="number" class="form-control" placeholder="170" min="0" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Cân Nặng (kg)</label>
+                                <input type="number" step="0.1" class="form-control" placeholder="65" min="0" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="margin-top: 15px;"><i class="bi bi-check-circle"></i> Lập Phiếu</button>
+                    </form>
+
+                    <h5 style="margin-top: 30px; margin-bottom: 15px; color: #1f3a93; font-weight: 700;">
+                        <i class="bi bi-prescription2"></i> Đơn Thuốc (Tối đa 30 loại)
+                    </h5>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="5%">STT</th>
+                                    <th width="25%">Mã Thuốc <span class="text-danger">*</span></th>
+                                    <th width="20%">Đơn Vị <span class="text-danger">*</span></th>
+                                    <th width="20%">Số Lượng</th>
+                                    <th width="20%">Cách Dùng <span class="text-danger">*</span></th>
+                                    <th width="10%">Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prescriptionTable">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Nhấn "Thêm Thuốc" để thêm dòng</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="btn btn-success" onclick="addPrescriptionRow()"><i class="bi bi-plus-circle"></i> Thêm Thuốc</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. MEDICAL EXAMINATION LOOKUP -->
+        <div id="exam-lookup" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-search-heart"></i> Tra Cứu Phiếu Khám Bệnh
+                </div>
+                <div class="card-body">
+                    <div class="search-box">
+                        <input type="text" id="examSearchInput" class="form-control" placeholder="Nhập mã phiếu khám hoặc tên bệnh nhân...">
+                        <button class="btn btn-primary" onclick="searchExam()"><i class="bi bi-search"></i> Tìm Kiếm</button>
+                    </div>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã Phiếu Khám</th>
+                                <th>Họ và Tên</th>
+                                <th>Giới Tính</th>
+                                <th>Năm Sinh</th>
+                                <th>Ngày Tiếp Nhận</th>
+                            </tr>
+                        </thead>
+                        <tbody id="examSearchResults">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">Nhập thông tin tìm kiếm...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. MEDICINE LIST LOOKUP -->
+        <div id="medicine-lookup" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-capsule"></i> Tra Cứu Danh Sách Thuốc
+                </div>
+                <div class="card-body">
+                    <div class="search-box">
+                        <input type="text" id="medicineSearchInput" class="form-control" placeholder="Nhập tên thuốc...">
+                        <button class="btn btn-primary" onclick="searchMedicine()"><i class="bi bi-search"></i> Tìm Kiếm</button>
+                    </div>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tên Thuốc</th>
+                                <th>Đơn Vị Tính</th>
+                                <th>Số Lượng</th>
+                                <th>Giá Tiền (VND)</th>
+                                <th>Cách Dùng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medicineSearchResults">
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Nhập thông tin tìm kiếm...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. DISEASE TYPE LOOKUP -->
+        <div id="disease-lookup" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-clipboard-pulse"></i> Tra Cứu Danh Sách Loại Bệnh
+                </div>
+                <div class="card-body">
+                    <div class="search-box">
+                        <input type="text" id="diseaseSearchInput" class="form-control" placeholder="Nhập tên loại bệnh...">
+                        <button class="btn btn-primary" onclick="searchDisease()"><i class="bi bi-search"></i> Tìm Kiếm</button>
+                    </div>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mã Loại Bệnh</th>
+                                <th>Loại Bệnh</th>
+                                <th>Mô Tả</th>
+                            </tr>
+                        </thead>
+                        <tbody id="diseaseSearchResults">
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Nhập thông tin tìm kiếm...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. CREATE INVOICE/BILLING -->
+        <div id="invoice" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-receipt"></i> Lập Hóa Đơn Thanh Toán
+                </div>
+                <div class="card-body">
+                    <form id="invoiceForm">
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Mã Hóa Đơn</label>
+                                <input type="text" class="form-control" placeholder="HĐ001" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Ngày Xuất Hóa Đơn</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Họ và Tên</label>
+                                <input type="text" class="form-control" placeholder="Nguyễn Văn A" required>
+                            </div>
+                            <div>
+                                <label class="form-label">CCCD</label>
+                                <input type="text" class="form-control" placeholder="001234567890" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Địa Chỉ</label>
+                                <input type="text" class="form-control" placeholder="123 Đường ABC, TP.HCM" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Ngày Sinh</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Giới Tính</label>
+                                <select class="form-select" required>
+                                    <option value="">-- Chọn --</option>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Số Điện Thoại</label>
+                                <input type="tel" class="form-control" placeholder="0901234567" required>
+                            </div>
+                        </div>
+
+                        <h5 style="margin-top: 20px; margin-bottom: 15px; color: #1f3a93; font-weight: 700;">
+                            <i class="bi bi-table"></i> Chi Tiết Hóa Đơn
+                        </h5>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">STT</th>
+                                        <th width="25%">Tên Thuốc</th>
+                                        <th width="15%">Đơn Vị</th>
+                                        <th width="15%">Số Lượng</th>
+                                        <th width="15%">Đơn Giá (VND)</th>
+                                        <th width="15%">Thành Tiền (VND)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceTable">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Nhấn "Thêm Thuốc" để thêm dòng</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-success" onclick="addInvoiceMedicine()"><i class="bi bi-plus-circle"></i> Thêm Thuốc</button>
+
+                        <div class="financial-summary">
+                            <div class="summary-item">
+                                <span><i class="bi bi-stethoscope"></i> Tiền Khám:</span>
+                                <span id="examinationFee">30,000 VND</span>
+                            </div>
+                            <div class="summary-item">
+                                <span><i class="bi bi-capsule"></i> Tiền Thuốc:</span>
+                                <span id="medicineFee">0 VND</span>
+                            </div>
+                            <div class="summary-item">
+                                <span><i class="bi bi-cash-coin"></i> Tổng Tiền:</span>
+                                <span id="totalAmount">30,000 VND</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Lập Hóa Đơn</button>
+                            <button type="reset" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Đặt Lại</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOTSTRAP JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ========== MOCK DATA ==========
+        const mockPatients = [
+            { id: 'BN001', name: 'Nguyễn Văn A', birth: 1985, gender: 'Nam', receptionDate: '2024-04-20', notes: 'Cảm cúm' },
+            { id: 'BN002', name: 'Trần Thị B', birth: 1990, gender: 'Nữ', receptionDate: '2024-04-22', notes: 'Viêm phế quản' },
+            { id: 'BN003', name: 'Lê Văn C', birth: 1992, gender: 'Nam', receptionDate: '2024-04-24', notes: 'Đau đầu' },
+            { id: 'BN004', name: 'Phạm Thị D', birth: 1988, gender: 'Nữ', receptionDate: '2024-04-25', notes: 'Rối loạn tiêu hóa' }
+        ];
+
+        const mockExams = [
+            { id: 'KH001', patientName: 'Nguyễn Văn A', gender: 'Nam', birth: 1985, receptionDate: '2024-04-20' },
+            { id: 'KH002', patientName: 'Trần Thị B', gender: 'Nữ', birth: 1990, receptionDate: '2024-04-22' },
+            { id: 'KH003', patientName: 'Lê Văn C', gender: 'Nam', birth: 1992, receptionDate: '2024-04-24' }
+        ];
+
+        const mockMedicines = [
+            { name: 'Paracetamol', unit: 'Viên', qty: 100, price: 1000, usage: '1' },
+            { name: 'Ibuprofen', unit: 'Viên', qty: 50, price: 2000, usage: '2' },
+            { name: 'Amoxicillin', unit: 'Viên', qty: 60, price: 3000, usage: '3' },
+            { name: 'Aspirin', unit: 'Viên', qty: 80, price: 800, usage: '1' },
+            { name: 'Vitamin C', unit: 'Viên', qty: 200, price: 500, usage: '1' }
+        ];
+
+        const mockDiseases = [
+            { id: 'B001', name: 'Cảm Cúm', desc: 'Bệnh do virus gây ra' },
+            { id: 'B002', name: 'Viêm Phế Quản', desc: 'Viêm đường hô hấp' },
+            { id: 'B003', name: 'Đau Đầu', desc: 'Triệu chứng đau ở vùng đầu' },
+            { id: 'B004', name: 'Rối Loạn Tiêu Hóa', desc: 'Vấn đề về hệ tiêu hóa' },
+            { id: 'B005', name: 'Viêm Tai Mũi Họng', desc: 'Viêm đường hô hấp trên' }
+        ];
+
+        // Global state
+        let dailyPatientCount = 0;
+
+        // ========== NAVIGATION SYSTEM ==========
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Hide all sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Remove active class from all links
+                document.querySelectorAll('.nav-link').forEach(l => {
+                    l.classList.remove('active');
+                });
+
+                // Show selected section
+                const sectionId = this.getAttribute('data-section');
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.classList.add('active');
+                    this.classList.add('active');
+
+                    // Update page title
+                    const titleMap = {
+                        profile: 'Hồ Sơ Cá Nhân',
+                        reception: 'Lập Phiếu Tiếp Nhận Bệnh Nhân',
+                        'patient-record': 'Lập Hồ Sơ Bệnh Nhân',
+                        'patient-lookup': 'Tra Cứu Bệnh Nhân',
+                        'exam-form': 'Lập Phiếu Khám Bệnh',
+                        'exam-lookup': 'Tra Cứu Phiếu Khám Bệnh',
+                        'medicine-lookup': 'Tra Cứu Danh Sách Thuốc',
+                        'disease-lookup': 'Tra Cứu Danh Sách Loại Bệnh',
+                        invoice: 'Lập Hóa Đơn Thanh Toán'
+                    };
+                    document.getElementById('page-title').textContent = titleMap[sectionId] || 'Trang Chủ';
+                }
+            });
+        });
+
+        // ========== LOGOUT FUNCTION ==========
+        function handleLogout() {
+            if (confirm('Bạn chắc chắn muốn đăng xuất?')) {
+                alert('Đã đăng xuất thành công!');
+                window.location.href = 'HomePage.html';
+            }
+        }
+
+        // ========== 2. RECEPTION FORM ==========
+        document.getElementById('receptionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const alertDiv = document.getElementById('receptionAlert');
+
+            if (dailyPatientCount >= 40) {
+                alertDiv.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <strong>Cảnh báo:</strong> Giới hạn 40 bệnh nhân/ngày đã được đạt. Không thể tiếp nhận thêm!</div>';
+                return;
+            }
+
+            dailyPatientCount++;
+            alertDiv.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle"></i> Tiếp nhận thành công! (${dailyPatientCount}/40 bệnh nhân hôm nay)</div>`;
+
+            setTimeout(() => {
+                this.reset();
+                alertDiv.innerHTML = '';
+            }, 3000);
+        });
+
+        // ========== 4. PATIENT LOOKUP ==========
+        function searchPatient() {
+            const searchInput = document.getElementById('patientSearchInput').value.toLowerCase();
+            const results = document.getElementById('patientSearchResults');
+
+            if (!searchInput) {
+                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nhập thông tin tìm kiếm...</td></tr>';
+                return;
+            }
+
+            const filtered = mockPatients.filter(p => 
+                p.id.toLowerCase().includes(searchInput) || 
+                p.name.toLowerCase().includes(searchInput)
+            );
+
+            if (filtered.length === 0) {
+                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
+                return;
+            }
+
+            results.innerHTML = filtered.map(p => `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.name}</td>
+                    <td>${p.birth}</td>
+                    <td><span class="badge ${p.gender === 'Nam' ? 'bg-primary' : 'bg-info'}">${p.gender}</span></td>
+                    <td>${p.receptionDate}</td>
+                    <td>${p.notes}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ========== 6. MEDICAL EXAMINATION LOOKUP ==========
+        function searchExam() {
+            const searchInput = document.getElementById('examSearchInput').value.toLowerCase();
+            const results = document.getElementById('examSearchResults');
+
+            if (!searchInput) {
+                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nhập thông tin tìm kiếm...</td></tr>';
+                return;
+            }
+
+            const filtered = mockExams.filter(e => 
+                e.id.toLowerCase().includes(searchInput) || 
+                e.patientName.toLowerCase().includes(searchInput)
+            );
+
+            if (filtered.length === 0) {
+                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
+                return;
+            }
+
+            results.innerHTML = filtered.map((e, idx) => `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td>${e.id}</td>
+                    <td>${e.patientName}</td>
+                    <td><span class="badge ${e.gender === 'Nam' ? 'bg-primary' : 'bg-info'}">${e.gender}</span></td>
+                    <td>${e.birth}</td>
+                    <td>${e.receptionDate}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ========== 7. MEDICINE LOOKUP ==========
+        function searchMedicine() {
+            const searchInput = document.getElementById('medicineSearchInput').value.toLowerCase();
+            const results = document.getElementById('medicineSearchResults');
+
+            if (!searchInput) {
+                results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nhập thông tin tìm kiếm...</td></tr>';
+                return;
+            }
+
+            const filtered = mockMedicines.filter(m => 
+                m.name.toLowerCase().includes(searchInput)
+            );
+
+            if (filtered.length === 0) {
+                results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
+                return;
+            }
+
+            results.innerHTML = filtered.map(m => `
+                <tr>
+                    <td>${m.name}</td>
+                    <td>${m.unit}</td>
+                    <td>${m.qty}</td>
+                    <td>${m.price.toLocaleString('vi-VN')}</td>
+                    <td>${m.usage}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ========== 8. DISEASE LOOKUP ==========
+        function searchDisease() {
+            const searchInput = document.getElementById('diseaseSearchInput').value.toLowerCase();
+            const results = document.getElementById('diseaseSearchResults');
+
+            if (!searchInput) {
+                results.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Nhập thông tin tìm kiếm...</td></tr>';
+                return;
+            }
+
+            const filtered = mockDiseases.filter(d => 
+                d.name.toLowerCase().includes(searchInput)
+            );
+
+            if (filtered.length === 0) {
+                results.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
+                return;
+            }
+
+            results.innerHTML = filtered.map(d => `
+                <tr>
+                    <td>${d.id}</td>
+                    <td><strong>${d.name}</strong></td>
+                    <td>${d.desc}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ========== 5. PRESCRIPTION TABLE FUNCTIONS ==========
+        let prescriptionRowCount = 0;
+
+        function addPrescriptionRow() {
+            if (prescriptionRowCount >= 30) {
+                alert('Tối đa 30 loại thuốc!');
+                return;
+            }
+
+            prescriptionRowCount++;
+            const table = document.getElementById('prescriptionTable');
+
+            if (table.innerHTML.includes('Nhấn "Thêm Thuốc"')) {
+                table.innerHTML = '';
+            }
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${prescriptionRowCount}</td>
+                <td>
+                    <select class="form-select form-select-sm" required>
+                        <option value="">-- Chọn (Tối đa 30) --</option>
+                        ${mockMedicines.map(m => `<option value="${m.name}">${m.name}</option>`).join('')}
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm" required>
+                        <option value="">-- Chọn --</option>
+                        <option value="Viên">Viên</option>
+                        <option value="Chai">Chai</option>
+                    </select>
+                </td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="0" min="0" required></td>
+                <td>
+                    <select class="form-select form-select-sm" required>
+                        <option value="">-- Chọn --</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); prescriptionRowCount--;">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+            table.appendChild(row);
+        }
+
+        // ========== 9. INVOICE TABLE FUNCTIONS ==========
+        let invoiceRowCount = 0;
+
+        function addInvoiceMedicine() {
+            invoiceRowCount++;
+            const table = document.getElementById('invoiceTable');
+
+            if (table.innerHTML.includes('Nhấn "Thêm Thuốc"')) {
+                table.innerHTML = '';
+            }
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${invoiceRowCount}</td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="Tên thuốc" required></td>
+                <td>
+                    <select class="form-select form-select-sm" required>
+                        <option value="Viên">Viên</option>
+                        <option value="Chai">Chai</option>
+                    </select>
+                </td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="0" min="0" onchange="calculateInvoiceTotal()" required></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="0" min="0" onchange="calculateInvoiceTotal()" required></td>
+                <td class="invoice-total">0 VND</td>
+            `;
+            table.appendChild(row);
+        }
+
+        function calculateInvoiceTotal() {
+            const rows = document.querySelectorAll('#invoiceTable tr');
+            let totalMedicineFee = 0;
+
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input[type="number"]');
+                if (inputs.length >= 2) {
+                    const qty = parseFloat(inputs[0].value) || 0;
+                    const price = parseFloat(inputs[1].value) || 0;
+                    const rowTotal = qty * price;
+                    totalMedicineFee += rowTotal;
+
+                    const totalCell = row.querySelector('.invoice-total');
+                    if (totalCell) {
+                        totalCell.textContent = rowTotal.toLocaleString('vi-VN') + ' VND';
+                    }
+                }
+            });
+
+            const examinationFee = 30000;
+            const totalFee = examinationFee + totalMedicineFee;
+
+            document.getElementById('medicineFee').textContent = totalMedicineFee.toLocaleString('vi-VN') + ' VND';
+            document.getElementById('totalAmount').textContent = totalFee.toLocaleString('vi-VN') + ' VND';
+        }
+
+        // ========== INVOICE FORM SUBMISSION ==========
+        document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Hóa đơn được lập thành công!');
+            this.reset();
+            document.getElementById('invoiceTable').innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nhấn "Thêm Thuốc" để thêm dòng</td></tr>';
+            calculateInvoiceTotal();
+        });
+
+        // ========== OTHER FORMS SUBMISSION ==========
+        document.getElementById('patientRecordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Hồ sơ bệnh nhân được lập thành công!');
+            this.reset();
+        });
+
+        document.getElementById('examForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Phiếu khám bệnh được lập thành công!');
+            this.reset();
+        });
+
+        // ========== Initialize ==========
+        window.addEventListener('load', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                if (!input.value) input.value = today;
+            });
+        });
+    </script>
+</body>
+</html>
