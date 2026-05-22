@@ -71,7 +71,7 @@ app.use((err, req, res, next) => {
 });
 
 // Khởi động server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server đang chạy tại: http://localhost:${PORT}`);
     // Kích hoạt kết nối DB ngay khi chạy server
