@@ -414,7 +414,6 @@
 
         <ul class="nav-menu">
             <li><a href="#" class="nav-link active" data-section="profile"><i class="bi bi-person-circle"></i> Hồ Sơ Cá Nhân</a></li>
-            <li><a href="#" class="nav-link" data-section="reception"><i class="bi bi-file-earmark-text"></i> Tiếp Nhận</a></li>
             <li><a href="#" class="nav-link" data-section="patient-record"><i class="bi bi-person-vcard"></i> Hồ Sơ BN</a></li>
             <li><a href="#" class="nav-link" data-section="patient-lookup"><i class="bi bi-search"></i> Tra Cứu BN</a></li>
             <li><a href="#" class="nav-link" data-section="exam-form"><i class="bi bi-stethoscope"></i> Phiếu Khám</a></li>
@@ -433,7 +432,7 @@
             <div class="header-right">
                 <div class="user-info">
                     <p>Chào, <strong id="current-user">Nguyễn Nhâm</strong></p>
-                    <p style="font-size: 12px; color: #999;">Nhân viên Tiếp tân</p>
+                    <p id="header-role" style="font-size: 12px; color: #999;">Nhân viên Tiếp tân</p>
                 </div>
                 <button class="btn btn-logout btn-sm" onclick="handleLogout()"><i class="bi bi-box-arrow-right"></i> Đăng Xuất</button>
             </div>
@@ -534,77 +533,6 @@
             </div>
         </div>
 
-        <!-- 1. PATIENT RECEPTION FORM -->
-        <div id="reception" class="content-section">
-            <div class="card">
-                <div class="card-header">
-                    <i class="bi bi-file-earmark-text"></i> Lập Phiếu Tiếp Nhận Bệnh Nhân
-                </div>
-                <div class="card-body">
-                    <div id="receptionAlert"></div>
-                    <form id="receptionForm">
-                        <div class="form-row">
-                            <div>
-                                <label class="form-label">Mã Bệnh Nhân</label>
-                                <input type="text" id="patientId" class="form-control" placeholder="BN001" required>
-                            </div>
-                            <div>
-                                <label class="form-label">Ngày Tiếp Nhận</label>
-                                <input type="date" id="receptionDate" class="form-control" required>
-                            </div>
-                            <div>
-                                <label class="form-label">STT</label>
-                                <input type="number" id="receptionOrder" class="form-control" placeholder="1" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div>
-                                <label class="form-label">Họ và Tên</label>
-                                <input type="text" id="patientName" class="form-control" placeholder="Nguyễn Văn A" required>
-                            </div>
-                            <div>
-                                <label class="form-label">Ngày Sinh</label>
-                                <input type="date" id="patientDob" class="form-control" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div>
-                                <label class="form-label">Giới Tính</label>
-                                <select id="patientGender" class="form-select" required>
-                                    <option value="">-- Chọn --</option>
-                                    <option value="Nam">Nam</option>
-                                    <option value="Nữ">Nữ</option>
-                                    <option value="Khác">Khác</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="form-label">CCCD</label>
-                                <input type="text" id="patientCitizen" class="form-control" placeholder="001234567890" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div>
-                                <label class="form-label">Số Điện Thoại</label>
-                                <input type="tel" id="patientPhone" class="form-control" placeholder="0901234567" required>
-                            </div>
-                            <div>
-                                <label class="form-label">Địa Chỉ</label>
-                                <input type="text" id="patientAddress" class="form-control" placeholder="123 Đường ABC, TP.HCM" required>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Tiếp Nhận</button>
-                        <button type="reset" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Đặt Lại</button>
-                    </form>
-                    <p style="margin-top: 20px; color: #666; font-size: 13px;">
-                        <strong>📋 Ghi chú:</strong> Phòng khám chỉ chấp nhận tối đa 40 bệnh nhân/ngày. Hệ thống sẽ cảnh báo khi vượt quá giới hạn.
-                    </p>
-                </div>
-            </div>
-        </div>
 
         <!-- 3. CREATE PATIENT RECORD -->
         <div id="patient-record" class="content-section">
@@ -732,6 +660,10 @@
                             <div>
                                 <label class="form-label">Ngày Khám</label>
                                 <input type="date" class="form-control" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Mã Nhân Viên</label>
+                                <input type="text" id="examEmployeeId" class="form-control" readonly>
                             </div>
                         </div>
 
@@ -1124,7 +1056,6 @@
                     // Update page title
                     const titleMap = {
                         profile: 'Hồ Sơ Cá Nhân',
-                        reception: 'Lập Phiếu Tiếp Nhận Bệnh Nhân',
                         'patient-record': 'Lập Hồ Sơ Bệnh Nhân',
                         'patient-lookup': 'Tra Cứu Bệnh Nhân',
                         'exam-form': 'Lập Phiếu Khám Bệnh',
@@ -1141,29 +1072,10 @@
         // ========== LOGOUT FUNCTION ==========
         function handleLogout() {
             if (confirm('Bạn chắc chắn muốn đăng xuất?')) {
-                alert('Đã đăng xuất thành công!');
-                window.location.href = 'HomePage.html';
+                window.location.href = 'module/pages/HomePage.html'
             }
         }
 
-        // ========== 2. RECEPTION FORM ==========
-        document.getElementById('receptionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const alertDiv = document.getElementById('receptionAlert');
-
-            if (dailyPatientCount >= 40) {
-                alertDiv.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <strong>Cảnh báo:</strong> Giới hạn 40 bệnh nhân/ngày đã được đạt. Không thể tiếp nhận thêm!</div>';
-                return;
-            }
-
-            dailyPatientCount++;
-            alertDiv.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle"></i> Tiếp nhận thành công! (${dailyPatientCount}/40 bệnh nhân hôm nay)</div>`;
-
-            setTimeout(() => {
-                this.reset();
-                alertDiv.innerHTML = '';
-            }, 3000);
-        });
 
         // ========== 4. PATIENT LOOKUP ==========
         function searchPatient() {
@@ -1414,13 +1326,159 @@
             this.reset();
         });
 
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        function formatDate(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function mapPositionByMaCV(maCV, roleName) {
+            const map = { 1: 'Bác Sĩ', 2: 'Lễ Tân', 3: 'Admin' };
+            return map[maCV] || roleName || 'Nhân Viên';
+        }
+
+        function formatEmployeeCode(roleName, maNV) {
+            const padded = String(maNV).padStart(3, '0');
+            const roleKey = (roleName || '').toLowerCase();
+            if (roleKey.includes('admin')) return `admin${padded}`;
+            if (roleKey.includes('bác')) return `BS${padded}`;
+            if (roleKey.includes('lễ')) return `LT${padded}`;
+            return `NV${padded}`;
+        }
+
+        function hideDepartmentFields() {
+            const avatarDepartment = document.getElementById('profile-department');
+            if (avatarDepartment) avatarDepartment.style.display = 'none';
+
+            const workDept = document.getElementById('profile-dept');
+            const workDeptContainer = workDept?.closest('div');
+            if (workDeptContainer) workDeptContainer.style.display = 'none';
+        }
+
+        function applyProfileData(profile) {
+            const position = mapPositionByMaCV(profile.MaCV, profile.TenCV);
+            const employeeCode = formatEmployeeCode(profile.TenCV, profile.MaNV);
+
+            const currentUser = document.getElementById('current-user');
+            if (currentUser) currentUser.textContent = profile.TenNV || currentUser.textContent;
+
+            const headerRoleEl = document.getElementById('header-role');
+            if (headerRoleEl) headerRoleEl.textContent = position;
+
+            const nameEl = document.getElementById('profile-name');
+            if (nameEl) nameEl.textContent = profile.TenNV || nameEl.textContent;
+
+            const positionEl = document.getElementById('profile-position');
+            if (positionEl) positionEl.textContent = position;
+
+            const idEl = document.getElementById('profile-employee-id');
+            if (idEl) idEl.textContent = employeeCode;
+
+            const dobEl = document.getElementById('profile-dob');
+            if (dobEl) dobEl.textContent = formatDate(profile.NgaySinh) || dobEl.textContent;
+
+            const genderEl = document.getElementById('profile-gender');
+            if (genderEl) genderEl.textContent = profile.GioiTinh || genderEl.textContent;
+
+            const citizenEl = document.getElementById('profile-citizen');
+            if (citizenEl) citizenEl.textContent = profile.CCCD || citizenEl.textContent;
+
+            const phoneEl = document.getElementById('profile-phone');
+            if (phoneEl) phoneEl.textContent = profile.SDT || phoneEl.textContent;
+
+            const emailEl = document.getElementById('profile-email');
+            if (emailEl) emailEl.textContent = profile.Email || emailEl.textContent;
+
+            const addressEl = document.getElementById('profile-address');
+            if (addressEl) addressEl.textContent = profile.DiaChi || addressEl.textContent;
+
+            const titleEl = document.getElementById('profile-title');
+            if (titleEl) titleEl.textContent = position;
+
+            const startDateEl = document.getElementById('profile-start-date');
+            if (startDateEl) startDateEl.textContent = formatDate(profile.NgayBatDauLamViec) || startDateEl.textContent;
+
+            hideDepartmentFields();
+        }
+
+        function applyAuthFallback() {
+            const storedName = sessionStorage.getItem('auth_name') || localStorage.getItem('auth_name');
+            const storedRole = sessionStorage.getItem('auth_role') || localStorage.getItem('auth_role');
+            const storedId = sessionStorage.getItem('auth_employee_id') || localStorage.getItem('auth_employee_id');
+
+            if (storedName) {
+                const currentUser = document.getElementById('current-user');
+                if (currentUser) currentUser.textContent = storedName;
+
+                const nameEl = document.getElementById('profile-name');
+                if (nameEl) nameEl.textContent = storedName;
+            }
+
+            if (storedRole) {
+                const headerRoleEl = document.getElementById('header-role');
+                if (headerRoleEl) headerRoleEl.textContent = storedRole;
+
+                const positionEl = document.getElementById('profile-position');
+                if (positionEl) positionEl.textContent = storedRole;
+
+                const titleEl = document.getElementById('profile-title');
+                if (titleEl) titleEl.textContent = storedRole;
+            }
+
+            if (storedId && storedRole) {
+                const idEl = document.getElementById('profile-employee-id');
+                if (idEl) idEl.textContent = formatEmployeeCode(storedRole, storedId);
+            }
+        }
+
+        async function loadProfile() {
+            const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+            if (!token) {
+                applyAuthFallback();
+                return;
+            }
+
+            applyAuthFallback();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/nhan-vien/me`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    console.warn('Failed to load profile:', response.status);
+                    return;
+                }
+
+                const payload = await response.json();
+                if (!payload?.data) return;
+                applyProfileData(payload.data);
+            } catch (error) {
+                console.warn('Failed to load profile:', error);
+            }
+        }
+
         // ========== Initialize ==========
         window.addEventListener('load', function() {
             const today = new Date().toISOString().split('T')[0];
             document.querySelectorAll('input[type="date"]').forEach(input => {
                 if (!input.value) input.value = today;
             });
+
+            const employeeId = sessionStorage.getItem('auth_employee_id') || localStorage.getItem('auth_employee_id') || '';
+            const employeeInput = document.getElementById('examEmployeeId');
+            if (employeeInput) {
+                employeeInput.value = employeeId;
+            }
         });
+
+        window.addEventListener('load', loadProfile);
     </script>
 </body>
 </html>

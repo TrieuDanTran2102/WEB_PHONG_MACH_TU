@@ -5,6 +5,10 @@ class NhanVienService {
         return await NhanVienRepo.GetAll();
     }
 
+    async GetProfileById(MaNV) {
+        return await NhanVienRepo.GetProfileById(MaNV);
+    }
+
     async Create(data) {
         const isExist = await NhanVienRepo.CheckUsernameExist(data.TenDangNhap);
         if (isExist) throw { status: 409, message: 'Tên đăng nhập này đã có người sử dụng!' };

@@ -619,8 +619,8 @@
             <h1 id="page-title">Hồ Sơ Cá Nhân</h1>
             <div class="header-right">
                 <div class="user-info">
-                    <p>Admin User</p>
-                    <p style="font-size: 12px; color: #999;">Quản trị viên</p>
+                    <p>Chào, <strong id="current-user">Admin User</strong></p>
+                    <p id="header-role" style="font-size: 12px; color: #999;">Quản trị viên</p>
                 </div>
                 <button class="btn-logout" onclick="handleLogout()">Đăng Xuất</button>
             </div>
@@ -1240,6 +1240,146 @@ IV. QUY ĐỊNH VỀ AN TOÀN & BẢO VỆ
             `).join('');
         }
 
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        function formatDate(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function mapPositionByMaCV(maCV, roleName) {
+            const map = { 1: 'Bác Sĩ', 2: 'Lễ Tân', 3: 'Admin' };
+            return map[maCV] || roleName || 'Nhân Viên';
+        }
+
+        function formatEmployeeCode(roleName, maNV) {
+            const padded = String(maNV).padStart(3, '0');
+            const roleKey = (roleName || '').toLowerCase();
+            if (roleKey.includes('admin')) return `admin${padded}`;
+            if (roleKey.includes('bác')) return `BS${padded}`;
+            if (roleKey.includes('lễ')) return `LT${padded}`;
+            return `NV${padded}`;
+        }
+
+        function hideDepartmentFields() {
+            const avatarDepartment = document.getElementById('profile-department');
+            if (avatarDepartment) avatarDepartment.style.display = 'none';
+
+            const workDept = document.getElementById('profile-dept');
+            const workDeptContainer = workDept?.closest('div');
+            if (workDeptContainer) workDeptContainer.style.display = 'none';
+        }
+
+        function applyProfileData(profile) {
+            const position = mapPositionByMaCV(profile.MaCV, profile.TenCV);
+            const employeeCode = formatEmployeeCode(profile.TenCV, profile.MaNV);
+
+            const currentUser = document.getElementById('current-user');
+            if (currentUser) currentUser.textContent = profile.TenNV || currentUser.textContent;
+
+            const headerRoleEl = document.getElementById('header-role');
+            if (headerRoleEl) headerRoleEl.textContent = position;
+
+            const nameEl = document.getElementById('profile-name');
+            if (nameEl) nameEl.textContent = profile.TenNV || nameEl.textContent;
+
+            const positionEl = document.getElementById('profile-position');
+            if (positionEl) positionEl.textContent = position;
+
+            const idEl = document.getElementById('profile-employee-id');
+            if (idEl) idEl.textContent = employeeCode;
+
+            const dobEl = document.getElementById('profile-dob');
+            if (dobEl) dobEl.textContent = formatDate(profile.NgaySinh) || dobEl.textContent;
+
+            const genderEl = document.getElementById('profile-gender');
+            if (genderEl) genderEl.textContent = profile.GioiTinh || genderEl.textContent;
+
+            const citizenEl = document.getElementById('profile-citizen');
+            if (citizenEl) citizenEl.textContent = profile.CCCD || citizenEl.textContent;
+
+            const phoneEl = document.getElementById('profile-phone');
+            if (phoneEl) phoneEl.textContent = profile.SDT || phoneEl.textContent;
+
+            const emailEl = document.getElementById('profile-email');
+            if (emailEl) emailEl.textContent = profile.Email || emailEl.textContent;
+
+            const addressEl = document.getElementById('profile-address');
+            if (addressEl) addressEl.textContent = profile.DiaChi || addressEl.textContent;
+
+            const titleEl = document.getElementById('profile-title');
+            if (titleEl) titleEl.textContent = position;
+
+            const startDateEl = document.getElementById('profile-start-date');
+            if (startDateEl) startDateEl.textContent = formatDate(profile.NgayBatDauLamViec) || startDateEl.textContent;
+
+            hideDepartmentFields();
+        }
+
+        function applyAuthFallback() {
+            const storedName = sessionStorage.getItem('auth_name') || localStorage.getItem('auth_name');
+            const storedRole = sessionStorage.getItem('auth_role') || localStorage.getItem('auth_role');
+            const storedId = sessionStorage.getItem('auth_employee_id') || localStorage.getItem('auth_employee_id');
+
+            if (storedName) {
+                const currentUser = document.getElementById('current-user');
+                if (currentUser) currentUser.textContent = storedName;
+
+                const nameEl = document.getElementById('profile-name');
+                if (nameEl) nameEl.textContent = storedName;
+            }
+
+            if (storedRole) {
+                const headerRoleEl = document.getElementById('header-role');
+                if (headerRoleEl) headerRoleEl.textContent = storedRole;
+
+                const positionEl = document.getElementById('profile-position');
+                if (positionEl) positionEl.textContent = storedRole;
+
+                const titleEl = document.getElementById('profile-title');
+                if (titleEl) titleEl.textContent = storedRole;
+            }
+
+            if (storedId && storedRole) {
+                const idEl = document.getElementById('profile-employee-id');
+                if (idEl) idEl.textContent = formatEmployeeCode(storedRole, storedId);
+            }
+        }
+
+        async function loadProfile() {
+            const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+            if (!token) {
+                applyAuthFallback();
+                return;
+            }
+
+            applyAuthFallback();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/nhan-vien/me`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    console.warn('Failed to load profile:', response.status);
+                    return;
+                }
+
+                const payload = await response.json();
+                if (!payload?.data) return;
+                applyProfileData(payload.data);
+            } catch (error) {
+                console.warn('Failed to load profile:', error);
+            }
+        }
+
+        window.addEventListener('load', loadProfile);
+
         function searchDiseases() {
             const searchInput = document.getElementById('diseaseSearchInput').value.toLowerCase();
             const resultsBody = document.getElementById('diseaseSearchResults');
@@ -1429,7 +1569,7 @@ IV. QUY ĐỊNH VỀ AN TOÀN & BẢO VỆ
 
         function handleLogout() {
             if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-                window.location.href = 'index.html';
+                window.location.href = 'module/pages/HomePage.html';
             }
         }
 

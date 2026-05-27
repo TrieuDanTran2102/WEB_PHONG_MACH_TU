@@ -17,9 +17,14 @@ CREATE TABLE NHANVIEN
 (
 	MaNV int IDENTITY(1,1) Primary key,
 	TenNV nvarchar(100) NOT NULL,
-	GioiTinh Varchar(3) NOT NULL,
-	NamSinh INT NOT NULL,
+	CCCD VARCHAR(12) UNIQUE,
+	GioiTinh NVARCHAR(3) NOT NULL,
+	NgaySinh Date NOT NULL,
+	NgayBatDauLamViec Date NOT NULL,
+	BangCapChungChi NVARCHAR(255),
+	DiaChi NVARCHAR(255),
 	SDT varchar(10) NOT NULL,
+	Email VARCHAR(100),
 	MaCV int,
 	MaCK int,
 	CONSTRAINT fk_nv_cv FOREIGN KEY (MaCV) REFERENCES CHUCVU(MaCV),
@@ -39,7 +44,7 @@ CREATE TABLE BENHNHAN
 	MaBN INT IDENTITY(1,1) Primary Key,
 	TenBN NVARCHAR(100) NOT NULL,
 	CCCD VARCHAR(12) UNIQUE,
-	GioiTinh VARCHAR(3) NOT NULL,
+	GioiTinh NVARCHAR(3) NOT NULL,
 	NgaySinh Date NOT NULL,
 	DiaChi NVARCHAR(255),
 	SDT VARCHAR(10) NOT NULL,
@@ -196,14 +201,14 @@ INSERT INTO CHUYENKHOA (TenCK) VALUES
 
 
 --3. NHANVIEN
-INSERT INTO NHANVIEN (TenNV, GioiTinh, NamSinh, SDT, MaCV, MaCK) VALUES
-(N'Trần Triệu Dân', 'Nam',  2005, '0901234561', 1, 1), 
-(N'Nguyễn Vũ Thùy Trâm', 'Nữ',  2005, '0901234562', 1, 2), 
-(N'Dương Thanh Hiếu', 'Nam',  2005, '0901234563', 1, 5), 
-(N'Nguyễn Thị Nhâm', 'Nữ',  2005, '0901234564', 1, 3), 
-(N'Nguyễn Trần Phương Vy', 'Nữ',  2005, '0901234565', 1, 4),
-(N'Hoàng Gia Huy', 'Nam', 2000, '0901234565', 3, NULL),
-(N'Phạm Thị Dung', 'Nữ', 2003, '0901234564', 2, NULL);
+INSERT INTO NHANVIEN (TenNV, CCCD, GioiTinh, NgaySinh, NgayBatDauLamViec, BangCapChungChi, DiaChi, SDT, Email, MaCV, MaCK) VALUES
+(N'Trần Minh Phúc', '123456789001', 'Nam', '1988-06-25', '2012-03-01', N'Tiến Sĩ Y Học', N'456 Đường Lê Lợi, TP.HCM', '0912345678', 'tran.minh.phuc@clinic.com', 1, 1),
+(N'Nguyễn Vũ Thùy Trâm', '123456789002', 'Nữ', '1995-07-18', '2018-05-12', N'Thạc Sĩ Y Khoa', N'Thủ Đức', '0901234562', 'tram@clinic.com', 1, 2),
+(N'Dương Thanh Hiếu', '123456789003', 'Nam', '1992-09-12', '2017-08-01', N'Bác Sĩ Chuyên Khoa I', N'Quận 3', '0901234563', 'hieu@clinic.com', 1, 5),
+(N'Nguyễn Trần Phương Vy', '123456789004', 'Nữ', '1996-02-20', '2019-11-15', N'Bác Sĩ Đa Khoa', N'Gò Vấp', '0901234565', 'vy@clinic.com', 1, 4),
+(N'Trần Triệu Dân', '123456789005', 'Nam', '1994-11-08', '2016-06-20', N'Bác Sĩ Chuyên Khoa II', N'Bình Thạnh', '0901234561', 'dan@clinic.com', 1, 3),
+(N'Nguyễn Văn Quản', '987654321098', 'Nam', '1980-01-01', '2010-01-01', NULL, N'456 Đường Lê Lợi, TP.HCM', '0912345678', 'admin@clinic.com', 3, NULL),
+(N'Nguyễn Nhâm', '123456789012', 'Nữ', '1995-05-15', '2022-03-01', NULL, N'123 Đường Trần Hưng Đạo, TP.HCM', '0901234567', 'le.thi.thu@clinic.com', 2, NULL);
 
 
 --4. TAIKHOAN

@@ -703,7 +703,7 @@ Mã Mời ThưẬc Phòng Khám *
     const API_BASE_URL = 'http://localhost:5000/api';
 
     function getRedirectPath({ role, username, employeeId }) {
-      if (role === 'Admin' || username === 'admin' || employeeId === '6') {
+      if (role === 'Admin' || username === 'admin') {
         return '../../admin.html';
       }
       if (role === 'Bác sĩ') {
@@ -738,6 +738,7 @@ Mã Mời ThưẬc Phòng Khám *
         const { data } = response;
         const token = data?.data?.token;
         const role = data?.data?.ChucVu;
+        const employeeIdFromToken = data?.data?.MaNV;
         const displayName = data?.data?.TenNV || username;
 
         if (!token) {
@@ -749,7 +750,7 @@ Mã Mời ThưẬc Phòng Khám *
         storage.setItem('auth_token', token);
         storage.setItem('auth_role', role || '');
         storage.setItem('auth_name', displayName);
-        storage.setItem('auth_employee_id', employeeId);
+        storage.setItem('auth_employee_id', employeeIdFromToken || employeeId);
 
         alert(`Đăng nhập thành công! Chào mừng ${displayName}`);
         closeLoginModal();

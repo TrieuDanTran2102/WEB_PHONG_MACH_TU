@@ -21,7 +21,7 @@ class AuthService {
             { expiresIn: '8h' }
         );
 
-        return { token, ChucVu: user.TenCV, TenNV: user.TenNV };
+        return { token, ChucVu: user.TenCV, TenNV: user.TenNV, MaNV: user.MaNV };
     }
 }
 module.exports = new AuthService();

@@ -10,6 +10,22 @@ class NhanVienController {
         }
     }
 
+    async GetMe(req, res) {
+        try {
+            const maNV = req.user?.maNV;
+            if (!maNV) {
+                return res.status(401).json({ status: 'error', message: 'Không tìm thấy thông tin nhân viên trong token!' });
+            }
+            const data = await NhanVienService.GetProfileById(maNV);
+            if (!data) {
+                return res.status(404).json({ status: 'error', message: 'Không tìm thấy nhân viên!' });
+            }
+            res.status(200).json({ status: 'success', data });
+        } catch (error) {
+            res.status(500).json({ status: 'error', message: error.message });
+        }
+    }
+
     async Create(req, res) {
         try {
             const id = await NhanVienService.Create(req.body);

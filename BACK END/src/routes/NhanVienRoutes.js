@@ -4,6 +4,12 @@ const NhanVienController = require('../controllers/NhanVienController');
 const { XacThuc, PhanQuyen } = require('../middlewares/AuthMiddleware');
 
 router.get(
+    '/me',
+    XacThuc,
+    NhanVienController.GetMe
+);
+
+router.get(
     '/', 
     XacThuc, 
     PhanQuyen('Admin'), 
