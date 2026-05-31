@@ -21,16 +21,30 @@ class PhieuKhamService {
             throw new Error(`Phòng mạch đã đạt giới hạn tối đa ${maxBenhNhan} bệnh nhân trong ngày hôm nay. Không thể tiếp nhận thêm!`);
         }
 
-        // 4. Nếu qua được cửa kiểm tra, tiến hành lưu phiếu khám
-        const MaPK = await PhieuKhamRepo.Create(MaNV, MaBN, today);
+        // 4. Nếu qua được cửa kiểm tra, tiến hành lưu phiếu khám (repo sẽ tính SoThuTu)
+        const pkData = await PhieuKhamRepo.Create(MaNV, MaBN, today);
         
         return {
-            MaPK,
+            MaPK: pkData.MaPK,
             MaNV,
             MaBN,
             NgayKham: today,
-            SoThuTu: countToday + 1 // Cung cấp luôn số thứ tự cho bệnh nhân
+            SoThuTu: pkData.SoThuTu // Lấy SoThuTu từ database
         };
+    }
+
+    async GetAllPhieuKham() {
+        // Lấy tất cả phiếu khám từ DB (đã sắp xếp theo NgayKham và SoThuTu)
+        const phieuKhamList = await PhieuKhamRepo.GetAll();
+
+        // Chế thế ngày thành chuỗi đăng DATE
+        return phieuKhamList.map(pk => ({
+            MaPK: pk.MaPK,
+            MaNV: pk.MaNV,
+            MaBN: pk.MaBN,
+            NgayKham: pk.NgayKham.toISOString().split('T')[0], // YYYY-MM-DD format
+            SoThuTu: pk.SoThuTu
+        }));
     }
 }
 

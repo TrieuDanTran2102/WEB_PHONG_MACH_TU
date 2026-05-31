@@ -3,6 +3,12 @@ const router = express.Router();
 const PhieuKhamController = require('../controllers/PhieuKhamController');
 const {XacThuc, PhanQuyen} = require('../middlewares/AuthMiddleware');
 
+router.get(
+    '/',
+    XacThuc,
+    PhieuKhamController.GetAll
+);
+
 router.post(
     '/', 
     XacThuc, 

@@ -27,6 +27,23 @@ class PhieuKhamController {
             });
         }
     }
+
+    async GetAll(req, res) {
+        try {
+            const result = await PhieuKhamService.GetAllPhieuKham();
+
+            res.status(200).json({
+                status: 'success',
+                message: 'Lấy danh sách phiếu khám thành công!',
+                data: result
+            });
+        } catch (error) {
+            res.status(400).json({
+                status: 'error',
+                message: error.message
+            });
+        }
+    }
 }
 
 module.exports = new PhieuKhamController();

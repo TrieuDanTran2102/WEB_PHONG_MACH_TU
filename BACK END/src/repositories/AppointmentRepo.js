@@ -46,9 +46,11 @@ class AppointmentRepo {
                 .input('NgayKham', sql.Date, ngayKham)
                 .input('MaNV', sql.Int, maNV)
                 .query(`
+                    DECLARE @OutputTable TABLE (MaPK INT);
                     INSERT INTO PHIEUKHAM (MaBN, NgayKham, MaNV)
-                    OUTPUT INSERTED.MaPK
-                    VALUES (@MaBN, @NgayKham, @MaNV)
+                    OUTPUT INSERTED.MaPK INTO @OutputTable
+                    VALUES (@MaBN, @NgayKham, @MaNV);
+                    SELECT * FROM @OutputTable;
                 `);
             return result.recordset[0].MaPK;
         } catch (error) {
@@ -110,9 +112,11 @@ class AppointmentRepo {
                 .input('MaNV', sql.Int, patientData.MaNV || null);
             
             const appointmentResult = await insertAppointment.query(`
+                DECLARE @OutputTable TABLE (MaPK INT);
                 INSERT INTO PHIEUKHAM (MaBN, NgayKham, MaNV)
-                OUTPUT INSERTED.MaPK
-                VALUES (@MaBN, @NgayKham, @MaNV)
+                OUTPUT INSERTED.MaPK INTO @OutputTable
+                VALUES (@MaBN, @NgayKham, @MaNV);
+                SELECT * FROM @OutputTable;
             `);
             
             console.log('[BookAppointment] INSERT PHIEUKHAM result:', appointmentResult.recordset);
@@ -175,9 +179,11 @@ class AppointmentRepo {
                 .input('NgayKham', sql.Date, ngayKham)
                 .input('MaNV', sql.Int, maNV)
                 .query(`
+                    DECLARE @OutputTable TABLE (MaPK INT);
                     INSERT INTO PHIEUKHAM (MaBN, NgayKham, MaNV)
-                    OUTPUT INSERTED.MaPK
-                    VALUES (@MaBN, @NgayKham, @MaNV)
+                    OUTPUT INSERTED.MaPK INTO @OutputTable
+                    VALUES (@MaBN, @NgayKham, @MaNV);
+                    SELECT * FROM @OutputTable;
                 `);
             return result.recordset[0].MaPK;
         } catch (error) {
