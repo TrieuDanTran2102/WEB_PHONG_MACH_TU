@@ -29,6 +29,9 @@ app.use('/api/tham-so', require('./src/routes/ThamSoRoutes'));
 // Bệnh nhân
 app.use('/api/benh-nhan', require('./src/routes/BenhNhanRoutes'));
 
+// Đặt lịch khám (Booking appointment)
+app.use('/api/appointments', require('./src/routes/AppointmentRoutes'));
+
 // Phiếu khám
 app.use('/api/phieu-kham', require('./src/routes/PhieuKhamRoutes'));
 

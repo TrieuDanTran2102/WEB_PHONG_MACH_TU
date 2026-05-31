@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Lịch Khám - Phòng Khám Tư Nhân</title>
+    
+    <!-- Bootstrap CSS (optional) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Sweet Alert 2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/appointmentBooking.css">
+    <link rel="stylesheet" href="../core/styles/global.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <strong>🏥 Phòng Khám Tư Nhân</strong>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">Dịch Vụ</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#booking">Đặt Lịch</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Liên Hệ</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Booking Section -->
+    <div class="appointment-container" id="booking">
+        <h2>📋 Đặt Lịch Khám</h2>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <strong>ℹ️ Thông Tin Quan Trọng</strong>
+            Vui lòng điền đầy đủ thông tin để đặt lịch khám. 
+            Chúng tôi sẽ liên hệ xác nhận trong vòng 1-2 giờ.
+        </div>
+
+        <!-- Appointment Form -->
+        <form id="appointmentForm" action="POST">
+            <!-- Full Name -->
+            <div class="form-group">
+                <label for="fullName">
+                    Họ và Tên <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="fullName" 
+                    name="fullName" 
+                    placeholder="Ví dụ: Nguyễn Văn A"
+                    required
+                >
+                <div class="error-message"></div>
+            </div>
+
+            <!-- CCCD & Phone (2 columns) -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="cccd">
+                        CCCD/CMND <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="cccd" 
+                        name="cccd" 
+                        placeholder="12 chữ số"
+                        pattern="[0-9]{12}"
+                        required
+                    >
+                    <div class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">
+                        Số Điện Thoại <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        placeholder="0xxxxxxxxx"
+                        required
+                    >
+                    <div class="error-message"></div>
+                </div>
+            </div>
+
+            <!-- Email & Gender (2 columns) -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">
+                        Email <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="example@email.com"
+                        required
+                    >
+                    <div class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">
+                        Giới Tính <span class="required">*</span>
+                    </label>
+                    <select id="gender" name="gender" required>
+                        <option value="">-- Chọn giới tính --</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                    <div class="error-message"></div>
+                </div>
+            </div>
+
+            <!-- Date of Birth & Appointment Date (2 columns) -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dob">Ngày Sinh (Tùy chọn)</label>
+                    <input 
+                        type="date" 
+                        id="dob" 
+                        name="dob"
+                    >
+                    <div class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="appointmentDate">
+                        Ngày Khám <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="appointmentDate" 
+                        name="appointmentDate"
+                        required
+                    >
+                    <div class="error-message"></div>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-group">
+                <label for="address">Địa Chỉ (Tùy chọn)</label>
+                <textarea 
+                    id="address" 
+                    name="address" 
+                    placeholder="Số nhà, tên đường, phường, quận, thành phố"
+                ></textarea>
+                <div class="error-message"></div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group">
+                <button type="submit">Đặt Lịch Khám</button>
+            </div>
+
+            <!-- Terms -->
+            <div style="text-align: center; font-size: 12px; color: #999; margin-top: 15px;">
+                <p>
+                    ✓ Thông tin của bạn sẽ được bảo mật và chỉ dùng cho mục đích đặt lịch khám<br>
+                    ✓ Bạn sẽ nhận được xác nhận qua email và SMS
+                </p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center py-4 mt-5">
+        <div class="container">
+            <p>&copy; 2026 Phòng Khám Tư Nhân. Tất cả quyền được bảo lưu.</p>
+            <p>📞 Hotline: <strong>1900 1234</strong> | 📧 Email: <strong>info@phongkham.com</strong></p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Sweet Alert 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../js/appointmentBooking.js"></script>
+
+    <script>
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('appointmentDate').min = today;
+    </script>
+</body>
+</html>

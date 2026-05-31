@@ -12,6 +12,8 @@
   <link rel="stylesheet" href="../../core/styles/variables.css">
   <link rel="stylesheet" href="../../core/styles/global.css">
   <link rel="stylesheet" href="../styles/home.css">
+  <!-- Sweet Alert 2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <!-- Axios (HTTP client) -->
   <script src="https://cdn.jsdelivr.net/npm/axios@1.7.8/dist/axios.min.js"></script>
 </head>
@@ -565,14 +567,24 @@ Mã Mời ThưẬc Phòng Khám *
         <div class="form-row">
           <div class="form-group">
             <label>Email</label>
-            <input type="email" placeholder="example@mail.com" />
+            <input type="email" id="email" placeholder="example@mail.com" />
           </div>
           <div class="form-group">
             <label>Ngày khám</label>
-            <input type="date"/>
+            <input type="date" id="appointmentDate" />
           </div>
         </div>
-        <button class="btn-submit" onclick="alert('Cảm ơn bạn! Chúng tôi sẽ liên hệ xác nhận trong 30 phút.')">Xác Nhận Đặt Lịch →</button>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Ngày Sinh *</label>
+            <input type="date" id="dob" />
+          </div>
+          <div class="form-group">
+            <label>Địa Chỉ</label>
+            <input type="text" id="address" placeholder="Số nhà, tên đường, phường, quận, thành phố" />
+          </div>
+        </div>
+        <button class="btn-submit">Xác Nhận Đặt Lịch →</button>
       </div>
     </div>
   </section>
@@ -1602,6 +1614,22 @@ Mã Mời ThưẬc Phòng Khám *
           closeForgotPassword();
         }
         closeLoginModal();
+      }
+    });
+  </script>
+
+  <!-- Sweet Alert 2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+  <!-- Appointment Booking JS -->
+  <script src="../../js/appointmentBooking.js"></script>
+
+  <!-- Set minimum date to today for appointment date picker -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const appointmentDateInput = document.querySelector('input[type="date"]');
+      if (appointmentDateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        appointmentDateInput.min = today;
       }
     });
   </script>
