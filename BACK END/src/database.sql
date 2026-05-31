@@ -195,7 +195,7 @@ INSERT INTO CHUCVU (TenCV) VALUES
 INSERT INTO CHUYENKHOA (TenCK) VALUES
 (N'Nội tổng quát'),
 (N'Tim mạch'),
-(N'Da liễu'),
+(N'Y học cổ truyền'),
 (N'Tai mũi họng'),
 (N'Nhi khoa');
 

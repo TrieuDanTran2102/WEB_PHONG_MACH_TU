@@ -334,15 +334,8 @@ Mã Mời ThưẬc Phòng Khám *
           </div>
         </div>
         <div class="hero-card">
-          <div class="card-label">Lịch khám hôm nay – Thứ Tư, 25/03</div>
-          <div class="card-time-slots">
-            <span class="time-slot">08:00</span>
-            <span class="time-slot">09:30</span>
-            <span class="time-slot active">10:00</span>
-            <span class="time-slot">14:00</span>
-            <span class="time-slot">15:30</span>
-            <span class="time-slot">16:30</span>
-          </div>
+          <div class="card-label" id="todayScheduleLabel">Lịch khám hôm nay</div>
+          <div class="card-time-slots" id="todayScheduleSlots"></div>
         </div>
         <div class="hero-card">
           <div class="next-avail"><span class="dot-green"></span> Còn lịch khám trong hôm nay – Đặt ngay kẻo hết chỗ!</div>
@@ -391,42 +384,36 @@ Mã Mời ThưẬc Phòng Khám *
         <div class="section-divider"></div>
       </div>
       <div class="services-grid">
-        <div class="service-card">
+        <a class="service-card" href="services/noi-tim-mach.html">
           <div class="service-icon">🫀</div>
           <h3>Nội Tim Mạch</h3>
           <p>Chẩn đoán và điều trị các bệnh lý tim mạch, tăng huyết áp, rối loạn nhịp tim với thiết bị siêu âm tim hiện đại.</p>
-          <a href="#" class="service-link">Xem chi tiết →</a>
-        </div>
-        <div class="service-card">
+          <span class="service-link">Xem chi tiết →</span>
+        </a>
+        <a class="service-card" href="services/ho-hap-phoi.html">
           <div class="service-icon">🫁</div>
           <h3>Hô Hấp – Phổi</h3>
           <p>Khám và điều trị hen suyễn, viêm phế quản, COPD và các bệnh đường hô hấp mạn tính.</p>
-          <a href="#" class="service-link">Xem chi tiết →</a>
-        </div>
-        <div class="service-card">
-          <div class="service-icon">🧠</div>
-          <h3>Thần Kinh</h3>
-          <p>Chuyên điều trị đau đầu, mất ngủ, Parkinson, sa sút trí tuệ và các rối loạn thần kinh khác.</p>
-          <a href="#" class="service-link">Xem chi tiết →</a>
-        </div>
-        <div class="service-card">
+          <span class="service-link">Xem chi tiết →</span>
+        </a>
+        <a class="service-card" href="services/nha-khoa.html">
           <div class="service-icon">🦷</div>
           <h3>Nha Khoa</h3>
           <p>Dịch vụ trám răng, nhổ răng, cạo vôi, bọc sứ và chỉnh nha thẩm mỹ với công nghệ tiên tiến.</p>
-          <a href="#" class="service-link">Xem chi tiết →</a>
-        </div>
-        <div class="service-card">
+          <span class="service-link">Xem chi tiết →</span>
+        </a>
+        <a class="service-card" href="services/mat.html">
           <div class="service-icon">👁</div>
           <h3>Mắt</h3>
           <p>Khám tật khúc xạ, đục thủy tinh thể, tăng nhãn áp và tư vấn phẫu thuật LASIK.</p>
-          <a href="#" class="service-link">Xem chi tiết →</a>
-        </div>
-        <div class="service-card">
-          <div class="service-icon">🧬</div>
-          <h3>Xét Nghiệm & Chẩn Đoán</h3>
-          <p>Xét nghiệm máu, nước tiểu, sinh hóa, X-quang, siêu âm và nhiều xét nghiệm cận lâm sàng khác.</p>
-          <a href="#" class="service-link">Xem chi tiết →</a>
-        </div>
+          <span class="service-link">Xem chi tiết →</span>
+        </a>
+        <a class="service-card" href="services/y-hoc-co-truyen.html">
+          <div class="service-icon">🌿</div>
+          <h3>Y Học Cổ Truyền</h3>
+          <p>Chẩn trị bằng phương pháp Đông y, kết hợp thảo dược và liệu pháp hỗ trợ an toàn, lành tính.</p>
+          <span class="service-link">Xem chi tiết →</span>
+        </a>
       </div>
     </div>
   </section>
@@ -491,35 +478,46 @@ Mã Mời ThưẬc Phòng Khám *
         <p>Mỗi bác sĩ tại Mai Nam đều được chọn lựa kỹ lưỡng về chuyên môn, y đức và kỹ năng giao tiếp với bệnh nhân.</p>
         <div class="section-divider"></div>
       </div>
-      <div class="doctors-grid">
-        <div class="doctor-card">
-          <div class="doctor-photo"><img src="assets/Hieu.jpg" alt="BS. Hiếu" class="doctor-photo-img"/></div>
+      <div class="doctors-carousel">
+        <button class="doctor-nav doctor-nav-left" type="button" aria-label="Bác sĩ trước">‹</button>
+        <div class="doctors-track">
+          <div class="doctor-card">
+          <div class="doctor-photo"><img src="assets/Hieu.jpg" alt="BS. Dương Thanh Hiếu" class="doctor-photo-img"/></div>
           <div class="doctor-body">
             <div class="doctor-rating"><span class="stars">★★★★★</span> 4.9 (312)</div>
-            <a href="#" class="btn-doc">Xem thông tin</a>
+            <button class="btn-doc doctor-info-btn" type="button" data-doctor-id="hieu">Xem thông tin</button>
           </div>
         </div>
-        <div class="doctor-card">
-          <div class="doctor-photo"><img src="assets/Nham.png" alt="BS. Nguyễn Nhâm" class="doctor-photo-img"/></div>
+          <div class="doctor-card">
+          <div class="doctor-photo"><img src="assets/Nham.png" alt="BS. Nguyễn Thị Nhâm" class="doctor-photo-img"/></div>
           <div class="doctor-body">
             <div class="doctor-rating"><span class="stars">★★★★★</span> 4.8 (289)</div>
-            <a href="#" class="btn-doc">Xem thông tin</a>
+            <button class="btn-doc doctor-info-btn" type="button" data-doctor-id="nham">Xem thông tin</button>
           </div>
         </div>
-        <div class="doctor-card">
-          <div class="doctor-photo"><img src="assets/Tram.png" alt="BS. Nguyễn Trâm" class="doctor-photo-img"/></div>
+          <div class="doctor-card">
+          <div class="doctor-photo"><img src="assets/Tram.png" alt="BS. Nguyễn Vũ Thùy Trâm" class="doctor-photo-img"/></div>
           <div class="doctor-body">
             <div class="doctor-rating"><span class="stars">★★★★★</span> 4.9 (401)</div>
-            <a href="#" class="btn-doc">Xem thông tin</a>
+            <button class="btn-doc doctor-info-btn" type="button" data-doctor-id="tram">Xem thông tin</button>
           </div>
         </div>
-        <div class="doctor-card">
-          <div class="doctor-photo"><img src="assets/Dan.jpg" alt="BS. Vy" class="doctor-photo-img"/></div>
+          <div class="doctor-card">
+          <div class="doctor-photo"><img src="assets/Dan.jpg" alt="BS. Trần Triệu Dân" class="doctor-photo-img"/></div>
           <div class="doctor-body">
             <div class="doctor-rating"><span class="stars">★★★★★</span> 4.7 (198)</div>
-            <a href="#" class="btn-doc">Xem thông tin</a>
+            <button class="btn-doc doctor-info-btn" type="button" data-doctor-id="dan">Xem thông tin</button>
           </div>
         </div>
+          <div class="doctor-card">
+          <div class="doctor-photo"><img src="assets/Vy.png" alt="BS. Nguyễn Trần Phương Vy" class="doctor-photo-img"/></div>
+          <div class="doctor-body">
+            <div class="doctor-rating"><span class="stars">★★★★★</span> 4.8 (214)</div>
+            <button class="btn-doc doctor-info-btn" type="button" data-doctor-id="vy">Xem thông tin</button>
+          </div>
+        </div>
+        </div>
+        <button class="doctor-nav doctor-nav-right" type="button" aria-label="Bác sĩ kế tiếp">›</button>
       </div>
     </div>
   </section>
@@ -623,7 +621,7 @@ Mã Mời ThưẬc Phòng Khám *
       <div class="footer-brand">
         <a class="logo" href="#">
           <div class="logo-icon">
-            <img src="file:///C:/Users/Windows/Pictures/SE104/logo.jpg" alt="Logo Phòng Khám Triệu Dân" class="logo-image"/>
+            <img src="assets/logo.jpg" alt="Logo Phòng Khám Triệu Dân" class="logo-image"/>
           </div>
           <div class="logo-text"><strong>Phòng Khám Triệu Dân</strong><span>Chăm sóc sức khỏe chuyên nghiệp</span></div>
         </a>
@@ -687,6 +685,155 @@ Mã Mời ThưẬc Phòng Khám *
   <button id="scrollToTopBtn" class="scroll-to-top" title="Lên đầu trang">
     &#8593;
   </button>
+
+  <!-- Doctor Info Modal -->
+  <div id="doctorModal" class="doctor-modal" aria-hidden="true">
+    <div class="doctor-modal-backdrop" data-close="true"></div>
+    <div class="doctor-modal-content" role="dialog" aria-modal="true" aria-labelledby="doctorModalName">
+      <button class="doctor-modal-close" type="button" data-close="true" aria-label="Đóng">&times;</button>
+
+      <div class="doctor-hero">
+        <div class="doctor-hero-photo">
+          <img id="doctorModalPhoto" src="" alt="Ảnh bác sĩ" />
+        </div>
+        <div class="doctor-hero-info">
+          <span class="doctor-hero-tag">Bác sĩ chuyên khoa</span>
+          <h2 id="doctorModalName">Tên bác sĩ</h2>
+          <p id="doctorModalDegree" class="doctor-hero-degree">Học vị</p>
+          <div class="doctor-hero-meta">
+            <div>
+              <span>Chuyên khoa</span>
+              <strong id="doctorModalSpecialty">Nội tổng quát</strong>
+            </div>
+            <div>
+              <span>Kinh nghiệm</span>
+              <strong id="doctorModalYears">12 năm</strong>
+            </div>
+            <div>
+              <span>Đánh giá</span>
+              <strong id="doctorModalRating">4.9 ★</strong>
+            </div>
+          </div>
+          <div class="doctor-hero-actions">
+            <a class="btn-primary" href="#appointment">Đặt lịch khám</a>
+            <a class="btn-ghost" href="#contact">Liên hệ tư vấn</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="doctor-modal-body">
+        <section class="doctor-section reveal">
+          <h3>Giới thiệu bác sĩ</h3>
+          <p id="doctorModalIntro"></p>
+        </section>
+
+        <section class="doctor-section reveal">
+          <h3>Chuyên môn nổi bật</h3>
+          <div id="doctorModalTags" class="doctor-tags"></div>
+        </section>
+
+        <section class="doctor-section reveal">
+          <h3>Thành tựu &amp; Kinh nghiệm</h3>
+          <div class="doctor-achievements">
+            <div class="doctor-achievement">
+              <span>Số năm kinh nghiệm</span>
+              <strong id="doctorModalYearsText">12+</strong>
+            </div>
+            <div class="doctor-achievement">
+              <span>Công trình nghiên cứu</span>
+              <strong id="doctorModalResearch">18</strong>
+            </div>
+            <div class="doctor-achievement">
+              <span>Chứng chỉ chuyên môn</span>
+              <strong id="doctorModalCerts">10</strong>
+            </div>
+            <div class="doctor-achievement">
+              <span>Hội thảo y khoa</span>
+              <strong id="doctorModalConferences">25</strong>
+            </div>
+            <div class="doctor-achievement">
+              <span>Bệnh viện từng công tác</span>
+              <strong id="doctorModalHospitals">3</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="doctor-section reveal">
+          <h3>Lịch làm việc</h3>
+          <div class="doctor-schedule">
+            <div class="doctor-schedule-row">
+              <span>Thứ 2</span><span>07:00 - 11:30</span><span class="status available">Còn lịch</span>
+            </div>
+            <div class="doctor-schedule-row">
+              <span>Thứ 3</span><span>13:00 - 16:30</span><span class="status full">Hết lịch</span>
+            </div>
+            <div class="doctor-schedule-row">
+              <span>Thứ 4</span><span>07:00 - 11:30</span><span class="status available">Còn lịch</span>
+            </div>
+            <div class="doctor-schedule-row">
+              <span>Thứ 5</span><span>13:00 - 16:30</span><span class="status available">Còn lịch</span>
+            </div>
+            <div class="doctor-schedule-row">
+              <span>Thứ 6</span><span>07:00 - 11:30</span><span class="status full">Hết lịch</span>
+            </div>
+            <div class="doctor-schedule-row">
+              <span>Thứ 7</span><span>08:00 - 12:00</span><span class="status available">Còn lịch</span>
+            </div>
+            <div class="doctor-schedule-row">
+              <span>Chủ nhật</span><span>08:00 - 11:00</span><span class="status closed">Nghỉ</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="doctor-section reveal">
+          <h3>Feedback bệnh nhân</h3>
+          <div class="doctor-reviews">
+            <div class="doctor-review">
+              <div class="review-header">
+                <div class="review-avatar">👩‍⚕️</div>
+                <div>
+                  <strong>Chị Minh Anh</strong>
+                  <div class="review-stars">★★★★★</div>
+                </div>
+              </div>
+              <p>Thái độ tận tâm, giải thích rõ ràng và đưa ra phác đồ điều trị rất dễ hiểu.</p>
+            </div>
+            <div class="doctor-review">
+              <div class="review-header">
+                <div class="review-avatar">🧑‍💼</div>
+                <div>
+                  <strong>Anh Quang Huy</strong>
+                  <div class="review-stars">★★★★★</div>
+                </div>
+              </div>
+              <p>Khám kỹ, quy trình nhanh gọn, cảm giác an tâm và chuyên nghiệp.</p>
+            </div>
+            <div class="doctor-review">
+              <div class="review-header">
+                <div class="review-avatar">👩</div>
+                <div>
+                  <strong>Chị Thu Hà</strong>
+                  <div class="review-stars">★★★★☆</div>
+                </div>
+              </div>
+              <p>Bác sĩ tư vấn tận tình, theo dõi kỹ sau điều trị và nhắc lịch tái khám.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="doctor-cta reveal">
+          <div>
+            <h3>Đặt lịch khám với bác sĩ ngay hôm nay</h3>
+            <p>Nhận tư vấn trực tiếp và theo dõi chuyên sâu với đội ngũ bác sĩ hàng đầu.</p>
+          </div>
+          <div class="doctor-cta-actions">
+            <a class="btn-primary" href="#appointment">Đặt lịch</a>
+            <a class="btn-ghost" href="#contact">Liên hệ tư vấn</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Modal functionality
@@ -772,6 +919,54 @@ Mã Mời ThưẬc Phòng Khám *
       }
     }
 
+    function getVietnamNowParts() {
+      const formatter = new Intl.DateTimeFormat('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        weekday: 'long',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+      const parts = formatter.formatToParts(new Date());
+      const map = {};
+      parts.forEach(part => {
+        if (part.type !== 'literal') {
+          map[part.type] = part.value;
+        }
+      });
+      return map;
+    }
+
+    function renderTodaySchedule() {
+      const labelEl = document.getElementById('todayScheduleLabel');
+      const slotsEl = document.getElementById('todayScheduleSlots');
+      if (!labelEl || !slotsEl) return;
+
+      const now = getVietnamNowParts();
+      const dayName = now.weekday ? now.weekday.charAt(0).toUpperCase() + now.weekday.slice(1) : '';
+      labelEl.textContent = `Lịch khám hôm nay – ${dayName}, ${now.day}/${now.month}/${now.year}`;
+
+      const slotTimes = [
+        '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+        '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
+      ];
+
+      const nowMinutes = Number(now.hour) * 60 + Number(now.minute);
+      slotsEl.innerHTML = '';
+
+      slotTimes.forEach(time => {
+        const [hour, minute] = time.split(':').map(Number);
+        const slotMinutes = hour * 60 + minute;
+        const slotEl = document.createElement('span');
+        slotEl.className = `time-slot${slotMinutes <= nowMinutes ? ' passed' : ''}`;
+        slotEl.textContent = time;
+        slotsEl.appendChild(slotEl);
+      });
+    }
+
     // Close modal when clicking outside
     window.onclick = function(event) {
       const modal = document.getElementById('loginModal');
@@ -787,9 +982,12 @@ Mã Mời ThưẬc Phòng Khám *
       }
     });
 
-    // Scroll to top on page load
+    // Scroll to top on page load unless an anchor is provided
     window.addEventListener('load', function() {
-      window.scrollTo(0, 0);
+      if (!window.location.hash) {
+        window.scrollTo(0, 0);
+      }
+      renderTodaySchedule();
     });
 
     // Show/hide scroll to top button
@@ -827,6 +1025,175 @@ Mã Mời ThưẬc Phòng Khám *
         }
       });
     });
+
+    const doctorsTrack = document.querySelector('.doctors-track');
+    const doctorPrev = document.querySelector('.doctor-nav-left');
+    const doctorNext = document.querySelector('.doctor-nav-right');
+
+    if (doctorsTrack && doctorPrev && doctorNext) {
+      const scrollByCard = () => {
+        const card = doctorsTrack.querySelector('.doctor-card');
+        const gap = 24;
+        return card ? card.offsetWidth + gap : 280;
+      };
+
+      doctorPrev.addEventListener('click', () => {
+        doctorsTrack.scrollBy({ left: -scrollByCard(), behavior: 'smooth' });
+      });
+
+      doctorNext.addEventListener('click', () => {
+        doctorsTrack.scrollBy({ left: scrollByCard(), behavior: 'smooth' });
+      });
+    }
+
+    const doctorProfiles = {
+      hieu: {
+        name: 'Dương Thanh Hiếu',
+        degree: 'Tiến Sĩ Y Học',
+        specialty: 'Nội tổng quát - Nhi khoa',
+        years: '15 năm',
+        rating: '4.9 ★',
+        photo: 'assets/Hieu.jpg',
+        intro: 'Bác sĩ Dương Thanh Hiếu có hơn 15 năm kinh nghiệm trong chẩn đoán và điều trị nội khoa, tập trung vào chăm sóc toàn diện và phòng ngừa bệnh lý mạn tính.',
+        achievements: { years: '15+', research: '22', certs: '12', conferences: '30', hospitals: '3' }
+      },
+      nham: {
+        name: 'Nguyễn Thị Nhâm',
+        degree: 'PGS.TS Y Học',
+        specialty: 'Chuyên khoa Nội',
+        years: '14 năm',
+        rating: '4.8 ★',
+        photo: 'assets/Nham.png',
+        intro: 'PGS.TS Nguyễn Thị Nhâm nổi bật với thế mạnh điều trị nội khoa chuyên sâu, luôn lắng nghe và xây dựng phác đồ phù hợp với từng bệnh nhân.',
+        achievements: { years: '14+', research: '18', certs: '11', conferences: '26', hospitals: '4' }
+      },
+      tram: {
+        name: 'Nguyễn Vũ Thùy Trâm',
+        degree: 'Tiến Sĩ Y Học',
+        specialty: 'Tai mũi họng',
+        years: '12 năm',
+        rating: '4.9 ★',
+        photo: 'assets/Tram.png',
+        intro: 'Bác sĩ Thùy Trâm chuyên sâu tai mũi họng với phong cách khám kỹ lưỡng, giải thích rõ ràng và ưu tiên điều trị bảo tồn.',
+        achievements: { years: '12+', research: '16', certs: '9', conferences: '21', hospitals: '3' }
+      },
+      dan: {
+        name: 'Trần Triệu Dân',
+        degree: 'PGS.TS Y Học',
+        specialty: 'Y học cổ truyền',
+        years: '13 năm',
+        rating: '4.7 ★',
+        photo: 'assets/Dan.jpg',
+        intro: 'PGS.TS Trần Triệu Dân kết hợp y học cổ truyền và phương pháp hiện đại, hỗ trợ phục hồi toàn diện và nâng cao thể trạng.',
+        achievements: { years: '13+', research: '20', certs: '10', conferences: '24', hospitals: '2' }
+      },
+      vy: {
+        name: 'Nguyễn Trần Phương Vy',
+        degree: 'Thạc Sĩ Y Học',
+        specialty: 'Khám tổng quát',
+        years: '9 năm',
+        rating: '4.8 ★',
+        photo: 'assets/Vy.png',
+        intro: 'Thạc Sĩ Phương Vy tập trung chăm sóc sức khỏe tổng quát, tư vấn phòng ngừa và đồng hành cùng bệnh nhân trong quá trình điều trị.',
+        achievements: { years: '9+', research: '10', certs: '8', conferences: '15', hospitals: '2' }
+      }
+    };
+
+    const doctorTags = [
+      'Nội tổng quát',
+      'Tim mạch',
+      'Tai mũi họng',
+      'Y học cổ truyền',
+      'Nhi khoa',
+      'Khám tổng quát',
+      'Tư vấn sức khỏe'
+    ];
+
+    const doctorModal = document.getElementById('doctorModal');
+    const modalName = document.getElementById('doctorModalName');
+    const modalDegree = document.getElementById('doctorModalDegree');
+    const modalSpecialty = document.getElementById('doctorModalSpecialty');
+    const modalYears = document.getElementById('doctorModalYears');
+    const modalRating = document.getElementById('doctorModalRating');
+    const modalPhoto = document.getElementById('doctorModalPhoto');
+    const modalIntro = document.getElementById('doctorModalIntro');
+    const modalTags = document.getElementById('doctorModalTags');
+    const modalYearsText = document.getElementById('doctorModalYearsText');
+    const modalResearch = document.getElementById('doctorModalResearch');
+    const modalCerts = document.getElementById('doctorModalCerts');
+    const modalConferences = document.getElementById('doctorModalConferences');
+    const modalHospitals = document.getElementById('doctorModalHospitals');
+
+    function openDoctorModal(doctorId) {
+      const data = doctorProfiles[doctorId];
+      if (!data || !doctorModal) return;
+
+      modalName.textContent = data.name;
+      modalDegree.textContent = data.degree;
+      modalSpecialty.textContent = data.specialty;
+      modalYears.textContent = data.years;
+      modalRating.textContent = data.rating;
+      modalPhoto.src = data.photo;
+      modalPhoto.alt = `Ảnh bác sĩ ${data.name}`;
+      modalIntro.textContent = data.intro;
+      modalYearsText.textContent = data.achievements.years;
+      modalResearch.textContent = data.achievements.research;
+      modalCerts.textContent = data.achievements.certs;
+      modalConferences.textContent = data.achievements.conferences;
+      modalHospitals.textContent = data.achievements.hospitals;
+
+      modalTags.innerHTML = '';
+      doctorTags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.className = 'doctor-tag';
+        chip.textContent = tag;
+        modalTags.appendChild(chip);
+      });
+
+      doctorModal.classList.add('open');
+      doctorModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDoctorModal() {
+      if (!doctorModal) return;
+      doctorModal.classList.remove('open');
+      doctorModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = 'auto';
+    }
+
+    document.querySelectorAll('.doctor-info-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        openDoctorModal(button.dataset.doctorId);
+      });
+    });
+
+    if (doctorModal) {
+      doctorModal.addEventListener('click', event => {
+        // Close if clicking backdrop or close button
+        if (event.target === doctorModal || 
+            event.target.classList.contains('doctor-modal-backdrop') ||
+            event.target.classList.contains('doctor-modal-close')) {
+          closeDoctorModal();
+        }
+      });
+    }
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && doctorModal?.classList.contains('open')) {
+        closeDoctorModal();
+      }
+    });
+
+    const modalObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.doctor-modal .reveal').forEach(el => modalObserver.observe(el));
 
     // ===== FORGOT PASSWORD FUNCTIONALITY =====
     let fpCurrentScreen = 1;
