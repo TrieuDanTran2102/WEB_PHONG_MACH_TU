@@ -21,7 +21,7 @@
   <!-- ===== TOPBAR ===== -->
   <div class="topbar">
     <div class="topbar-inner">
-      <div>📍 123 Nguyễn Văn Linh, Q.7, TP.HCM &nbsp;<span>|</span>&nbsp; ⏰ T2–T7: 07:00 – 20:00 &nbsp;|&nbsp; CN: 08:00 – 12:00</div>
+      <div>📍 123 Nguyễn Văn Linh, Q.7, TP.HCM &nbsp;<span>|</span>&nbsp; ⏰ T2–T7: 07:00 – 17:00 &nbsp;</div>
       <div><a href="tel:02812345678">📞 028 1234 5678</a> &nbsp;<span>|</span>&nbsp; <a href="mailto:info@phongkhamtrieudan.vn">✉️ info@phongkhamtrieudan.vn</a></div>
     </div>
   </div>
@@ -532,7 +532,7 @@ Mã Mời ThưẬc Phòng Khám *
           <div class="appt-contact"><div class="appt-contact-icon">📞</div> <span><strong>Hotline:</strong> 028 1234 5678</span></div>
           <div class="appt-contact"><div class="appt-contact-icon">💬</div> <span><strong>Zalo:</strong> 0901 234 567</span></div>
           <div class="appt-contact"><div class="appt-contact-icon">📍</div> <span>123 Nguyễn Văn Linh, Q.7, TP.HCM</span></div>
-          <div class="appt-contact"><div class="appt-contact-icon">⏰</div> <span>T2–T7: 07:00 – 20:00 &nbsp;|&nbsp; CN: 08:00 – 12:00</span></div>
+          <div class="appt-contact"><div class="appt-contact-icon">⏰</div> <span>T2–T7: 07:00 – 17:00</span></div>
         </div>
       </div>
       <div class="appt-form">
@@ -547,30 +547,29 @@ Mã Mời ThưẬc Phòng Khám *
             <input type="tel" placeholder="0901 234 567"/>
           </div>
         </div>
-        <div class="form-group">
-          <label>Chuyên khoa</label>
-          <select>
-            <option>-- Chọn chuyên khoa --</option>
-            <option>Nội Tim Mạch</option>
-            <option>Hô Hấp – Phổi</option>
-            <option>Thần Kinh</option>
-            <option>Nha Khoa</option>
-            <option>Mắt</option>
-            <option>Xét nghiệm & Chẩn đoán</option>
-          </select>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Giới tính</label>
+            <select>
+              <option>-- Chọn giới tính --</option>
+              <option>Nam</option>
+              <option>Nữ</option>
+              <option>Khác</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>CCCD</label>
+            <input type="text" placeholder="123456789012" />
+          </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Ngày khám</label>
-            <input type="date"/>
+            <label>Email</label>
+            <input type="email" placeholder="example@mail.com" />
           </div>
           <div class="form-group">
-            <label>Buổi khám</label>
-            <select>
-              <option>Sáng (07:00–12:00)</option>
-              <option>Chiều (13:00–17:00)</option>
-              <option>Tối (17:00–20:00)</option>
-            </select>
+            <label>Ngày khám</label>
+            <input type="date"/>
           </div>
         </div>
         <button class="btn-submit" onclick="alert('Cảm ơn bạn! Chúng tôi sẽ liên hệ xác nhận trong 30 phút.')">Xác Nhận Đặt Lịch →</button>
@@ -660,8 +659,8 @@ Mã Mời ThưẬc Phòng Khám *
           <li><a href="#">📍 123 Nguyễn Văn Linh, Q.7</a></li>
           <li><a href="#">📞 028 1234 5678</a></li>
           <li><a href="#">✉️ info@phongkhamtrieudan.vn</a></li>
-          <li><a href="#">⏰ T2–T7: 07:00–20:00</a></li>
-          <li><a href="#">⏰ CN: 08:00–12:00</a></li>
+          <li><a href="#">⏰ T2–T7: 07:00–17:00</a></li>
+          
         </ul>
       </div>
     </div>
