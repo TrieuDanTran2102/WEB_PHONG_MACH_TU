@@ -348,6 +348,41 @@
             flex: 1;
         }
 
+        .suggestion-field {
+            position: relative;
+        }
+
+        .suggestion-list {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 20;
+            padding: 6px;
+        }
+
+        .suggestion-item {
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #1f3a93;
+            font-weight: 600;
+        }
+
+        .suggestion-item:hover {
+            background: #f2f5ff;
+        }
+
+        .suggestion-list.hidden {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 200px;
@@ -414,13 +449,13 @@
 
         <ul class="nav-menu">
             <li><a href="#" class="nav-link active" data-section="profile"><i class="bi bi-person-circle"></i> Hồ Sơ Cá Nhân</a></li>
-            <li><a href="#" class="nav-link" data-section="patient-record"><i class="bi bi-person-vcard"></i> Hồ Sơ BN</a></li>
-            <li><a href="#" class="nav-link" data-section="patient-lookup"><i class="bi bi-search"></i> Tra Cứu BN</a></li>
-            <li><a href="#" class="nav-link" data-section="exam-form"><i class="bi bi-stethoscope"></i> Phiếu Khám</a></li>
-            <li><a href="#" class="nav-link" data-section="exam-lookup"><i class="bi bi-search-heart"></i> Tra Cứu Khám</a></li>
-            <li><a href="#" class="nav-link" data-section="medicine-lookup"><i class="bi bi-capsule"></i> Thuốc</a></li>
-            <li><a href="#" class="nav-link" data-section="disease-lookup"><i class="bi bi-clipboard-pulse"></i> Loại Bệnh</a></li>
-            <li><a href="#" class="nav-link" data-section="invoice"><i class="bi bi-receipt"></i> Hóa Đơn</a></li>
+            <li><a href="#" class="nav-link" data-section="patient-record"><i class="bi bi-person-vcard"></i> Lập Hồ Sơ Bệnh Nhân</a></li>
+            <li><a href="#" class="nav-link" data-section="patient-lookup"><i class="bi bi-search"></i> Tra Cứu Bệnh Nhân</a></li>
+            <li><a href="#" class="nav-link" data-section="exam-form"><i class="bi bi-stethoscope"></i> Chi Tiết Phiếu Khám</a></li>
+            <li><a href="#" class="nav-link" data-section="exam-lookup"><i class="bi bi-search-heart"></i> Tra Cứu Phiếu Khám</a></li>
+            <li><a href="#" class="nav-link" data-section="medicine-lookup"><i class="bi bi-capsule"></i> Tra Cứu Danh Sách Thuốc</a></li>
+            <li><a href="#" class="nav-link" data-section="disease-lookup"><i class="bi bi-clipboard-pulse"></i>  Tra Cứu Danh Sách Loại Bệnh</a></li>
+            <li><a href="#" class="nav-link" data-section="invoice"><i class="bi bi-receipt"></i> Lập Hóa Đơn</a></li>
         </ul>
     </div>
 
@@ -544,50 +579,58 @@
                     <form id="patientRecordForm">
                         <div class="form-row">
                             <div>
-                                <label class="form-label">Mã Bệnh Nhân</label>
-                                <input type="text" class="form-control" placeholder="BN001" required>
+                                <label class="form-label">Họ và Tên <span class="text-danger">*</span></label>
+                                <input type="text" id="patientName" class="form-control" placeholder="Nguyễn Văn A" required>
                             </div>
                             <div>
-                                <label class="form-label">Họ và Tên</label>
-                                <input type="text" class="form-control" placeholder="Nguyễn Văn A" required>
+                                <label class="form-label">Ngày Sinh <span class="text-danger">*</span></label>
+                                <input type="date" id="patientDOB" class="form-control" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div>
-                                <label class="form-label">Ngày Sinh</label>
-                                <input type="date" class="form-control" required>
-                            </div>
-                            <div>
-                                <label class="form-label">Giới Tính</label>
-                                <select class="form-select" required>
+                                <label class="form-label">Giới Tính <span class="text-danger">*</span></label>
+                                <select id="patientGender" class="form-select" required>
                                     <option value="">-- Chọn --</option>
                                     <option value="Nam">Nam</option>
                                     <option value="Nữ">Nữ</option>
                                     <option value="Khác">Khác</option>
                                 </select>
                             </div>
+                            <div>
+                                <label class="form-label">CCCD <span class="text-danger">*</span></label>
+                                <input type="text" id="patientCCCD" class="form-control" placeholder="001234567890" required>
+                            </div>
                         </div>
 
                         <div class="form-row">
                             <div>
-                                <label class="form-label">CCCD</label>
-                                <input type="text" class="form-control" placeholder="001234567890" required>
+                                <label class="form-label">Số Điện Thoại <span class="text-danger">*</span></label>
+                                <input type="tel" id="patientPhone" class="form-control" placeholder="0901234567" required>
                             </div>
                             <div>
-                                <label class="form-label">Số Điện Thoại</label>
-                                <input type="tel" class="form-control" placeholder="0901234567" required>
+                                <label class="form-label">Địa Chỉ <span class="text-danger">*</span></label>
+                                <input type="text" id="patientAddress" class="form-control" placeholder="123 Đường ABC, TP.HCM" required>
                             </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Địa Chỉ</label>
-                            <input type="text" class="form-control" placeholder="123 Đường ABC, TP.HCM" required>
                         </div>
 
                         <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Lập Hồ Sơ</button>
                         <button type="reset" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Đặt Lại</button>
                     </form>
+
+                    <div id="registrationSuccessModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 1000; min-width: 420px; text-align: center;">
+                        <h3 style="color: #1f3a93; margin-bottom: 10px;"><i class="bi bi-check-circle" style="color: #28a745; font-size: 40px; display: block; margin-bottom: 15px;"></i> Lập Hồ Sơ Thành Công</h3>
+                        <p style="color: #666; margin-bottom: 25px; font-size: 14px;">Thông tin bệnh nhân đã được ghi nhận trong hệ thống</p>
+                        <div style="text-align: left; background: #f5f7fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; line-height: 2;">
+                            <p><strong style="color: #666;">Mã Bệnh Nhân:</strong> <span id="successMaBN" style="color: #667eea; font-weight: 700; font-size: 16px;"></span></p>
+                            <p><strong style="color: #666;">Mã Phiếu Khám:</strong> <span id="successMaPK" style="color: #667eea; font-weight: 700; font-size: 16px;"></span></p>
+                            <p><strong style="color: #666;">Họ Tên:</strong> <span id="successTenBN" style="color: #1f3a93; font-weight: 600;"></span></p>
+                        </div>
+                        <p style="color: #666; margin-bottom: 25px; font-size: 14px;">Bệnh nhân vui lòng chuyển đến phòng khám để gặp bác sĩ.</p>
+                        <button class="btn btn-primary" onclick="closeRegistrationModal()"><i class="bi bi-check"></i> Xác Nhận</button>
+                    </div>
+                    <div id="registrationModalOverlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999;"></div>
 
                     <h5 style="margin-top: 30px; margin-bottom: 15px; color: #1f3a93; font-weight: 700;">
                         <i class="bi bi-clock-history"></i> Lịch Sử Khám Bệnh (5 Năm Gần Đây)
@@ -631,7 +674,7 @@
                                 <th>Năm Sinh</th>
                                 <th>Giới Tính</th>
                                 <th>Ngày Tiếp Nhận</th>
-                                <th>Ghi Chú</th>
+                                <th>Hành Động</th>
                             </tr>
                         </thead>
                         <tbody id="patientSearchResults">
@@ -648,7 +691,7 @@
         <div id="exam-form" class="content-section">
             <div class="card">
                 <div class="card-header">
-                    <i class="bi bi-stethoscope"></i> Lập Phiếu Khám Bệnh
+                    <i class="bi bi-stethoscope"></i> Chi Tiết Phiếu Khám Bệnh
                 </div>
                 <div class="card-body">
                     <form id="examForm">
@@ -717,51 +760,14 @@
                         </div>
 
                         <div class="form-row">
-                            <div>
+                            <div class="suggestion-field">
                                 <label class="form-label">Loại Bệnh <span class="text-danger">*</span></label>
-                                <select id="diseaseType" class="form-select" required>
-                                    <option value="">-- Chọn (Tối đa 5 loại) --</option>
-                                    <option value="Cảm Cúm">Cảm Cúm</option>
-                                    <option value="Viêm Phế Quản">Viêm Phế Quản</option>
-                                    <option value="Đau Đầu">Đau Đầu</option>
-                                    <option value="Rối Loạn Tiêu Hóa">Rối Loạn Tiêu Hóa</option>
-                                    <option value="Viêm Tai Mũi Họng">Viêm Tai Mũi Họng</option>
-                                </select>
-                                <small class="text-muted">Chỉ hỗ trợ 5 loại bệnh</small>
+                                <input type="text" id="diseaseType" class="form-control" placeholder="Nhập loại bệnh" autocomplete="off" required>
+                                <div id="diseaseTypeSuggestions" class="suggestion-list hidden"></div>
                             </div>
                         </div>
 
-                        <h5 style="margin-top: 20px; margin-bottom: 15px; color: #1f3a93; font-weight: 700;">
-                            <i class="bi bi-heart-pulse"></i> Chỉ Số Sức Khỏe
-                        </h5>
-
-                        <div class="form-row">
-                            <div>
-                                <label class="form-label">Nhịp Tim (lần/phút)</label>
-                                <input type="number" class="form-control" placeholder="75" min="0" required>
-                            </div>
-                            <div>
-                                <label class="form-label">Nhiệt Độ (°C)</label>
-                                <input type="number" step="0.1" class="form-control" placeholder="36.5" min="0" required>
-                            </div>
-                            <div>
-                                <label class="form-label">Huyết Áp (mmHg)</label>
-                                <input type="text" class="form-control" placeholder="120/80" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div>
-                                <label class="form-label">Chiều Cao (cm)</label>
-                                <input type="number" class="form-control" placeholder="170" min="0" required>
-                            </div>
-                            <div>
-                                <label class="form-label">Cân Nặng (kg)</label>
-                                <input type="number" step="0.1" class="form-control" placeholder="65" min="0" required>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" style="margin-top: 15px;"><i class="bi bi-check-circle"></i> Lập Phiếu</button>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 15px;"><i class="bi bi-check-circle"></i> Cập Nhật Phiếu Khám</button>
                     </form>
 
                     <h5 style="margin-top: 30px; margin-bottom: 15px; color: #1f3a93; font-weight: 700;">
@@ -813,11 +819,12 @@
                                 <th>Giới Tính</th>
                                 <th>Năm Sinh</th>
                                 <th>Ngày Tiếp Nhận</th>
+                                <th>Hành Động</th>
                             </tr>
                         </thead>
                         <tbody id="examSearchResults">
                             <tr>
-                                <td colspan="6" class="text-center text-muted">Nhập thông tin tìm kiếm...</td>
+                                <td colspan="7" class="text-center text-muted">Nhập thông tin tìm kiếm...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1030,6 +1037,61 @@
 
         // Global state
         let dailyPatientCount = 0;
+        const diseaseTypeOptions = [
+            'Nội Tim Mạch',
+            'Hô Hấp – Phổi',
+            'Nha Khoa',
+            'Mắt',
+            'Y Học Cổ Truyền'
+        ];
+
+        function renderDiseaseSuggestions(matches) {
+            const container = document.getElementById('diseaseTypeSuggestions');
+            if (!container) return;
+
+            if (matches.length === 0) {
+                container.innerHTML = '<div class="suggestion-item">Không có gợi ý</div>';
+                return;
+            }
+
+            container.innerHTML = matches
+                .map(item => `<div class="suggestion-item" data-value="${item}">${item}</div>`)
+                .join('');
+        }
+
+        function setupDiseaseSuggestions() {
+            const input = document.getElementById('diseaseType');
+            const container = document.getElementById('diseaseTypeSuggestions');
+            if (!input || !container) return;
+
+            const updateSuggestions = () => {
+                const value = input.value.trim().toLowerCase();
+                const matches = diseaseTypeOptions.filter(option =>
+                    option.toLowerCase().includes(value)
+                );
+                renderDiseaseSuggestions(matches);
+                container.classList.remove('hidden');
+            };
+
+            input.addEventListener('focus', updateSuggestions);
+            input.addEventListener('input', updateSuggestions);
+
+            container.addEventListener('click', event => {
+                const target = event.target.closest('.suggestion-item');
+                if (!target) return;
+                const value = target.getAttribute('data-value');
+                if (value) {
+                    input.value = value;
+                }
+                container.classList.add('hidden');
+            });
+
+            document.addEventListener('click', event => {
+                if (!container.contains(event.target) && event.target !== input) {
+                    container.classList.add('hidden');
+                }
+            });
+        }
 
         // ========== NAVIGATION SYSTEM ==========
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -1058,7 +1120,7 @@
                         profile: 'Hồ Sơ Cá Nhân',
                         'patient-record': 'Lập Hồ Sơ Bệnh Nhân',
                         'patient-lookup': 'Tra Cứu Bệnh Nhân',
-                        'exam-form': 'Lập Phiếu Khám Bệnh',
+                        'exam-form': ' Chi Tiết Phiếu Khám Bệnh',
                         'exam-lookup': 'Tra Cứu Phiếu Khám Bệnh',
                         'medicine-lookup': 'Tra Cứu Danh Sách Thuốc',
                         'disease-lookup': 'Tra Cứu Danh Sách Loại Bệnh',
@@ -1078,8 +1140,8 @@
 
 
         // ========== 4. PATIENT LOOKUP ==========
-        function searchPatient() {
-            const searchInput = document.getElementById('patientSearchInput').value.toLowerCase();
+        async function searchPatient() {
+            const searchInput = document.getElementById('patientSearchInput').value.toLowerCase().trim();
             const results = document.getElementById('patientSearchResults');
 
             if (!searchInput) {
@@ -1087,58 +1149,176 @@
                 return;
             }
 
-            const filtered = mockPatients.filter(p => 
-                p.id.toLowerCase().includes(searchInput) || 
-                p.name.toLowerCase().includes(searchInput)
-            );
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const response = await fetch('http://localhost:5000/api/benh-nhan', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
 
-            if (filtered.length === 0) {
-                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
-                return;
+                if (!response.ok) {
+                    console.warn('Failed to fetch patients:', response.status);
+                    results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Lỗi tại dữ liệu</td></tr>';
+                    return;
+                }
+
+                const payload = await response.json();
+                const patients = payload.data || [];
+
+                // Filter by MaBN or TenBN
+                const filtered = patients.filter(p => {
+                    const maBN = (p.MaBN || '').toString().toLowerCase();
+                    const tenBN = (p.TenBN || '').toLowerCase();
+                    return maBN.includes(searchInput) || tenBN.includes(searchInput);
+                });
+
+                if (filtered.length === 0) {
+                    results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
+                    return;
+                }
+
+                results.innerHTML = filtered.map(p => {
+                    const birthYear = p.NgaySinh ? new Date(p.NgaySinh).getFullYear() : '-';
+                    return `
+                    <tr>
+                        <td>${p.MaBN}</td>
+                        <td>${p.TenBN}</td>
+                        <td>${birthYear}</td>
+                        <td><span class="badge ${p.GioiTinh === 'Nam' ? 'bg-primary' : 'bg-info'}">${p.GioiTinh || '-'}</span></td>
+                        <td>${p.NgayTiepNhan || '-'}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="viewPatientDetail('${p.MaBN}')">Xem chi tiết</button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="deletePatient('${p.MaBN}')">Xoa</button>
+                        </td>
+                    </tr>
+                `}).join('');
+            } catch (error) {
+                console.error('Error fetching patients:', error);
+                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Lỗi kết nối</td></tr>';
             }
-
-            results.innerHTML = filtered.map(p => `
-                <tr>
-                    <td>${p.id}</td>
-                    <td>${p.name}</td>
-                    <td>${p.birth}</td>
-                    <td><span class="badge ${p.gender === 'Nam' ? 'bg-primary' : 'bg-info'}">${p.gender}</span></td>
-                    <td>${p.receptionDate}</td>
-                    <td>${p.notes}</td>
-                </tr>
-            `).join('');
         }
 
         // ========== 6. MEDICAL EXAMINATION LOOKUP ==========
-        function searchExam() {
-            const searchInput = document.getElementById('examSearchInput').value.toLowerCase();
+        async function searchExam() {
+            const searchInput = document.getElementById('examSearchInput').value.toLowerCase().trim();
             const results = document.getElementById('examSearchResults');
 
             if (!searchInput) {
-                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nhập thông tin tìm kiếm...</td></tr>';
+                results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Nhập thông tin tìm kiếm...</td></tr>';
                 return;
             }
 
-            const filtered = mockExams.filter(e => 
-                e.id.toLowerCase().includes(searchInput) || 
-                e.patientName.toLowerCase().includes(searchInput)
-            );
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const response = await fetch('http://localhost:5000/api/phieu-kham', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
 
-            if (filtered.length === 0) {
-                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
-                return;
+                if (!response.ok) {
+                    console.warn('Failed to fetch exams:', response.status);
+                    results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Lỗi tại dờ liệu</td></tr>';
+                    return;
+                }
+
+                const payload = await response.json();
+                const exams = payload.data || [];
+
+                // Filter by MaPK or MaBN
+                const filtered = exams.filter(e => {
+                    const maPK = (e.MaPK || '').toString().toLowerCase();
+                    const maBN = (e.MaBN || '').toString().toLowerCase();
+                    return maPK.includes(searchInput) || maBN.includes(searchInput);
+                });
+
+                if (filtered.length === 0) {
+                    results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
+                    return;
+                }
+
+                results.innerHTML = filtered.map((e, idx) => `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${e.MaPK}</td>
+                        <td>${e.TenBN || '-'}</td>
+                        <td><span class="badge ${e.GioiTinh === 'Nam' ? 'bg-primary' : 'bg-info'}">${e.GioiTinh || '-'}</span></td>
+                        <td>${e.NgaySinh || '-'}</td>
+                        <td>${e.NgayKham || '-'}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="viewExamDetail('${e.MaPK}')">Xem chi tiết</button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteExam('${e.MaPK}')">Xoa</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error fetching exams:', error);
+                results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Lỗi kết nối</td></tr>';
             }
+        }
 
-            results.innerHTML = filtered.map((e, idx) => `
-                <tr>
-                    <td>${idx + 1}</td>
-                    <td>${e.id}</td>
-                    <td>${e.patientName}</td>
-                    <td><span class="badge ${e.gender === 'Nam' ? 'bg-primary' : 'bg-info'}">${e.gender}</span></td>
-                    <td>${e.birth}</td>
-                    <td>${e.receptionDate}</td>
-                </tr>
-            `).join('');
+        async function viewExamDetail(maPK) {
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const response = await fetch(`http://localhost:5000/api/phieu-kham`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch exam detail');
+
+                const payload = await response.json();
+                const exam = (payload.data || []).find(e => e.MaPK == maPK);
+
+                if (!exam) {
+                    alert(`Không tìm thấy phiếu khám: ${maPK}`);
+                    return;
+                }
+
+                alert(`Xem chi tiết phiếu khám: ${maPK}\n\nMã Bệnh Nhân: ${exam.MaBN}\nHọ Tên: ${exam.TenBN}\nNgày Khám: ${exam.NgayKham}`);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Lỗi tại dờ liệu');
+            }
+        }
+
+        function deleteExam(maPK) {
+            if (confirm(`Xóa phiếu khám ${maPK}?`)) {
+                alert(`Đã xóa phiếu khám: ${maPK}`);
+            }
+        }
+
+        // Patient detail and delete handlers (mirror exam handlers)
+        async function viewPatientDetail(maBN) {
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const response = await fetch(`http://localhost:5000/api/benh-nhan`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch patient detail');
+
+                const payload = await response.json();
+                const patient = (payload.data || []).find(p => p.MaBN == maBN);
+
+                if (!patient) {
+                    alert(`Không tìm thấy bệnh nhân: ${maBN}`);
+                    return;
+                }
+
+                alert(`Chi tiết bệnh nhân\n\nMã Bệnh Nhân: ${patient.MaBN}\nHọ Tên: ${patient.TenBN}\nNgày Sinh: ${patient.NgaySinh}\nGiới Tính: ${patient.GioiTinh}\nĐịa Chỉ: ${patient.DiaChi}`);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Lỗi tại dữ liệu');
+            }
+        }
+
+        function deletePatient(maBN) {
+            if (!confirm(`Xóa bệnh nhân ${maBN}?`)) return;
+            const idx = mockPatients.findIndex(p => p.id === maBN);
+            if (idx > -1) {
+                mockPatients.splice(idx, 1);
+                searchPatient();
+                alert(`Đã xóa bệnh nhân: ${maBN}`);
+            } else {
+                alert('Không tìm thấy bệnh nhân.');
+            }
         }
 
         // ========== 7. MEDICINE LOOKUP ==========
@@ -1313,16 +1493,62 @@
             calculateInvoiceTotal();
         });
 
-        // ========== OTHER FORMS SUBMISSION ==========
-        document.getElementById('patientRecordForm').addEventListener('submit', function(e) {
+        // ========== PATIENT REGISTRATION FORM SUBMISSION ==========
+        document.getElementById('patientRecordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('Hồ sơ bệnh nhân được lập thành công!');
-            this.reset();
+
+            const formData = {
+                TenBN: document.getElementById('patientName').value.trim(),
+                NgaySinh: document.getElementById('patientDOB').value.trim(),
+                GioiTinh: document.getElementById('patientGender').value.trim(),
+                CCCD: document.getElementById('patientCCCD').value.trim(),
+                SDT: document.getElementById('patientPhone').value.trim(),
+                DiaChi: document.getElementById('patientAddress').value.trim(),
+                Email: 'receptionist@clinic.local', // Placeholder email for offline registration
+                NgayKham: new Date().toISOString().split('T')[0], // Today's date
+                MaNV: sessionStorage.getItem('auth_employee_id') || localStorage.getItem('auth_employee_id') || null
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/appointments/book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    const errorMsg = result.errors?.join('\n') || result.message || 'Lập hồ sơ thất bại';
+                    alert('Lỗi: ' + errorMsg);
+                    return;
+                }
+
+                // Show success modal
+                document.getElementById('successMaBN').textContent = result.data.maBN;
+                document.getElementById('successMaPK').textContent = result.data.maPK;
+                document.getElementById('successTenBN').textContent = formData.TenBN;
+                document.getElementById('registrationSuccessModal').style.display = 'block';
+                document.getElementById('registrationModalOverlay').style.display = 'block';
+
+                // Reset form
+                this.reset();
+            } catch (error) {
+                alert('Lỗi kết nối: ' + error.message);
+                console.error('Error:', error);
+            }
         });
 
-        document.getElementById('examForm').addEventListener('submit', function(e) {
+        function closeRegistrationModal() {
+            document.getElementById('registrationSuccessModal').style.display = 'none';
+            document.getElementById('registrationModalOverlay').style.display = 'none';
+        }
+
+        // ========== OTHER FORMS SUBMISSION ==========
+
+        document.getElementById('examForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('Phiếu khám bệnh được lập thành công!');
+            alert('Phiếu khám bệnh được cập nhật thành công!');
             this.reset();
         });
 
@@ -1476,6 +1702,8 @@
             if (employeeInput) {
                 employeeInput.value = employeeId;
             }
+
+            setupDiseaseSuggestions();
         });
 
         window.addEventListener('load', loadProfile);
