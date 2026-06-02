@@ -3,7 +3,20 @@ const { sql, poolPromise } = require('../config/database');
 class LoaiBenhRepo {
     async GetAll() {
         const pool = await poolPromise;
-        const result = await pool.request().query('SELECT * FROM LOAIBENH');
+        const result = await pool.request().query(`
+            SELECT
+                lb.MaLoaiBenh,
+                lb.TenBenh,
+                -- aggregate TrieuChung + GhiChu from CT_LOAIBENH into a single description
+                ISNULL(STUFF((
+                    SELECT '; ' + ISNULL(cl.TrieuChung,'') + CASE WHEN ISNULL(cl.GhiChu,'')<>'' THEN ' (' + cl.GhiChu + ')' ELSE '' END
+                    FROM CT_LOAIBENH cl
+                    WHERE cl.MaLoaiBenh = lb.MaLoaiBenh
+                    FOR XML PATH('')
+                ),1,2,''), '') AS MoTa
+            FROM LOAIBENH lb
+            ORDER BY lb.TenBenh
+        `);
         return result.recordset;
     }
 

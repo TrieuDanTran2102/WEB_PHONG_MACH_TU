@@ -3,7 +3,15 @@ const sql = require('mssql');
 
 exports.GetAllThuoc = async () => {
   const pool = await poolPromise;
-  const result = await pool.request().query('SELECT * FROM THUOC');
+  const result = await pool.request().query(`
+    SELECT
+      t.MaThuoc, t.TenThuoc, t.DonGiaBan, t.SoLuongTon,
+      cd.MoTaCachDung, dvt.TenDVT
+    FROM THUOC t
+    LEFT JOIN CACHDUNG cd ON t.MaCachDung = cd.MaCachDung
+    LEFT JOIN DONVITINH dvt ON t.MaDVT = dvt.MaDVT
+    ORDER BY t.TenThuoc
+  `);
   return result.recordset;
 };
 

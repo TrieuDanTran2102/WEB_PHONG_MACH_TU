@@ -640,24 +640,7 @@
                     </div>
                     <div id="registrationModalOverlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999;"></div>
 
-                    <h5 style="margin-top: 30px; margin-bottom: 15px; color: #1f3a93; font-weight: 700;">
-                        <i class="bi bi-clock-history"></i> Lịch Sử Khám Bệnh (5 Năm Gần Đây)
-                    </h5>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Mã Phiếu Khám</th>
-                                <th>Loại Bệnh</th>
-                                <th>Ngày Khám</th>
-                            </tr>
-                        </thead>
-                        <tbody id="medicalHistoryTable">
-                            <tr>
-                                <td colspan="4" class="text-center text-muted">Không có dữ liệu</td>
-                            </tr>
-                        </tbody>
-                    </table>
+        
                 </div>
             </div>
         </div>
@@ -1036,13 +1019,7 @@
             { name: 'Vitamin C', unit: 'Viên', qty: 200, price: 500, usage: '1' }
         ];
 
-        const mockDiseases = [
-            { id: 'B001', name: 'Cảm Cúm', desc: 'Bệnh do virus gây ra' },
-            { id: 'B002', name: 'Viêm Phế Quản', desc: 'Viêm đường hô hấp' },
-            { id: 'B003', name: 'Đau Đầu', desc: 'Triệu chứng đau ở vùng đầu' },
-            { id: 'B004', name: 'Rối Loạn Tiêu Hóa', desc: 'Vấn đề về hệ tiêu hóa' },
-            { id: 'B005', name: 'Viêm Tai Mũi Họng', desc: 'Viêm đường hô hấp trên' }
-        ];
+        // disease data will be loaded from API
 
         // Global state
         let dailyPatientCount = 0;
@@ -1139,6 +1116,14 @@
                     // If opened patient lookup, load full patient list
                     if (sectionId === 'patient-lookup') {
                         loadAllPatients();
+                    }
+                    // If opened medicine lookup, load full medicine list
+                    if (sectionId === 'medicine-lookup') {
+                        loadAllMedicines();
+                    }
+                    // If opened disease lookup, load full list
+                    if (sectionId === 'disease-lookup') {
+                        loadAllDiseases();
                     }
                 }
             });
@@ -1613,61 +1598,247 @@
         }
 
         // ========== 7. MEDICINE LOOKUP ==========
-        function searchMedicine() {
-            const searchInput = document.getElementById('medicineSearchInput').value.toLowerCase();
+        // medicine cache + pagination
+        let medicinesCache = null;
+        let currentMedicineList = null;
+        let currentMedicinePage = 1;
+        const MEDICINES_PER_PAGE = 13;
+
+        async function loadAllMedicines() {
             const results = document.getElementById('medicineSearchResults');
+            results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td></tr>';
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const resp = await fetch('http://localhost:5000/api/thuoc', {
+                    headers: { Authorization: token ? `Bearer ${token}` : '' }
+                });
+                if (!resp.ok) {
+                    results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Lỗi khi lấy dữ liệu</td></tr>';
+                    return;
+                }
+                const payload = await resp.json();
+                medicinesCache = payload.data || [];
+                renderMedicineRows(medicinesCache);
+            } catch (err) {
+                console.error('Error loading medicines:', err);
+                results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Lỗi kết nối</td></tr>';
+            }
+        }
 
-            if (!searchInput) {
-                results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nhập thông tin tìm kiếm...</td></tr>';
+        function renderMedicineRows(list, page = 1) {
+            const results = document.getElementById('medicineSearchResults');
+            const paginationContainerId = 'medicinePagination';
+            let paginationContainer = document.getElementById(paginationContainerId);
+            if (!paginationContainer) {
+                // create pagination container under the table
+                paginationContainer = document.createElement('div');
+                paginationContainer.id = paginationContainerId;
+                paginationContainer.style.display = 'flex';
+                paginationContainer.style.justifyContent = 'center';
+                paginationContainer.style.marginTop = '12px';
+                const cardBody = document.querySelector('#medicine-lookup .card-body');
+                if (cardBody) cardBody.appendChild(paginationContainer);
+            }
+
+            currentMedicineList = list || [];
+            if (!currentMedicineList || currentMedicineList.length === 0) {
+                results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Không có dữ liệu</td></tr>';
+                paginationContainer.innerHTML = '';
                 return;
             }
 
-            const filtered = mockMedicines.filter(m => 
-                m.name.toLowerCase().includes(searchInput)
-            );
+            const total = currentMedicineList.length;
+            const totalPages = Math.max(1, Math.ceil(total / MEDICINES_PER_PAGE));
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentMedicinePage = page;
 
-            if (filtered.length === 0) {
-                results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
-                return;
-            }
+            const start = (page - 1) * MEDICINES_PER_PAGE;
+            const end = start + MEDICINES_PER_PAGE;
+            const pageItems = currentMedicineList.slice(start, end);
 
-            results.innerHTML = filtered.map(m => `
+            results.innerHTML = pageItems.map(m => `
                 <tr>
-                    <td>${m.name}</td>
-                    <td>${m.unit}</td>
-                    <td>${m.qty}</td>
-                    <td>${m.price.toLocaleString('vi-VN')}</td>
-                    <td>${m.usage}</td>
+                    <td>${m.TenThuoc || '-'}</td>
+                    <td>${m.TenDVT || m.MaDVT || '-'}</td>
+                    <td>${m.SoLuongTon != null ? m.SoLuongTon : '-'}</td>
+                    <td>${(m.DonGiaBan != null) ? Number(m.DonGiaBan).toLocaleString('vi-VN') : '-'}</td>
+                    <td>${m.MoTaCachDung || '-'}</td>
                 </tr>
             `).join('');
+
+            // render pagination
+            paginationContainer.innerHTML = renderPaginationControls(totalPages, currentMedicinePage, (p) => renderMedicineRows(currentMedicineList, p));
+        }
+
+        function renderPaginationControls(totalPages, currentPage, onPage) {
+            const parts = [];
+            function pageButton(n, label, active = false) {
+                return `<button class="page-btn" data-page="${n}" style="margin:0 6px; padding:8px 12px; border-radius:6px; border:1px solid #ccc; background:${active ? '#e74c3c' : 'white'}; color:${active ? 'white' : '#333'};">${label}</button>`;
+            }
+
+            parts.push(`<button class="page-nav" data-page="${Math.max(1, currentPage-1)}" style="margin:0 8px;">&larr;</button>`);
+
+            if (totalPages <= 7) {
+                for (let i=1;i<=totalPages;i++) parts.push(pageButton(i,i, i===currentPage));
+            } else {
+                if (currentPage <= 4) {
+                    for (let i=1;i<=5;i++) parts.push(pageButton(i,i, i===currentPage));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    parts.push(pageButton(totalPages, totalPages));
+                } else if (currentPage >= totalPages - 3) {
+                    parts.push(pageButton(1,1));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    for (let i=totalPages-4;i<=totalPages;i++) parts.push(pageButton(i,i, i===currentPage));
+                } else {
+                    parts.push(pageButton(1,1));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    parts.push(pageButton(currentPage-1, currentPage-1));
+                    parts.push(pageButton(currentPage, currentPage, true));
+                    parts.push(pageButton(currentPage+1, currentPage+1));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    parts.push(pageButton(totalPages, totalPages));
+                }
+            }
+
+            parts.push(`<button class="page-nav" data-page="${Math.min(totalPages, currentPage+1)}" style="margin:0 8px;">&rarr;</button>`);
+
+            // attach events after DOM insert by returning html and letting caller set handlers via delegation
+            setTimeout(() => {
+                const container = document.getElementById('medicinePagination');
+                if (!container) return;
+                container.querySelectorAll('.page-btn, .page-nav').forEach(btn => {
+                    btn.onclick = () => {
+                        const p = parseInt(btn.getAttribute('data-page'),10);
+                        if (!isNaN(p)) onPage(p);
+                    };
+                });
+            }, 0);
+
+            return parts.join('');
+        }
+
+        async function searchMedicine() {
+            const q = (document.getElementById('medicineSearchInput').value || '').trim();
+            const results = document.getElementById('medicineSearchResults');
+
+            // if no query, show full list (loadAllMedicines will handle caching)
+            if (!q) {
+                if (!medicinesCache) await loadAllMedicines();
+                else renderMedicineRows(medicinesCache);
+                return;
+            }
+
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const resp = await fetch(`http://localhost:5000/api/thuoc/search?q=${encodeURIComponent(q)}`, {
+                    headers: { Authorization: token ? `Bearer ${token}` : '' }
+                });
+                if (!resp.ok) {
+                    results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Lỗi khi tìm kiếm</td></tr>';
+                    return;
+                }
+                const payload = await resp.json();
+                const items = payload.data || [];
+                if (items.length === 0) {
+                    results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
+                    return;
+                }
+                // use renderMedicineRows to show paginated results
+                renderMedicineRows(items);
+            } catch (err) {
+                console.error('Error searching medicines:', err);
+                results.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Lỗi kết nối</td></tr>';
+            }
         }
 
         // ========== 8. DISEASE LOOKUP ==========
-        function searchDisease() {
-            const searchInput = document.getElementById('diseaseSearchInput').value.toLowerCase();
-            const results = document.getElementById('diseaseSearchResults');
+        // ========== DISEASE LOOKUP (LOAIBENH) ==========
+        let diseasesCache = null;
+        let currentDiseaseList = null;
+        let currentDiseasePage = 1;
+        const DISEASES_PER_PAGE = 13;
 
-            if (!searchInput) {
-                results.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Nhập thông tin tìm kiếm...</td></tr>';
+        async function loadAllDiseases() {
+            const results = document.getElementById('diseaseSearchResults');
+            results.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Đang tải dữ liệu...</td></tr>';
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const resp = await fetch('http://localhost:5000/api/benh', {
+                    headers: { Authorization: token ? `Bearer ${token}` : '' }
+                });
+                if (!resp.ok) {
+                    results.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Lỗi khi lấy dữ liệu</td></tr>';
+                    return;
+                }
+                const payload = await resp.json();
+                diseasesCache = payload.data || [];
+                renderDiseaseRows(diseasesCache);
+            } catch (err) {
+                console.error('Error loading diseases:', err);
+                results.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Lỗi kết nối</td></tr>';
+            }
+        }
+
+        function renderDiseaseRows(list, page = 1) {
+            const results = document.getElementById('diseaseSearchResults');
+            const paginationContainerId = 'diseasePagination';
+            let paginationContainer = document.getElementById(paginationContainerId);
+            if (!paginationContainer) {
+                paginationContainer = document.createElement('div');
+                paginationContainer.id = paginationContainerId;
+                paginationContainer.style.display = 'flex';
+                paginationContainer.style.justifyContent = 'center';
+                paginationContainer.style.marginTop = '12px';
+                const cardBody = document.querySelector('#disease-lookup .card-body');
+                if (cardBody) cardBody.appendChild(paginationContainer);
+            }
+
+            currentDiseaseList = list || [];
+            if (!currentDiseaseList || currentDiseaseList.length === 0) {
+                results.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Không có dữ liệu</td></tr>';
+                paginationContainer.innerHTML = '';
                 return;
             }
 
-            const filtered = mockDiseases.filter(d => 
-                d.name.toLowerCase().includes(searchInput)
-            );
+            const total = currentDiseaseList.length;
+            const totalPages = Math.max(1, Math.ceil(total / DISEASES_PER_PAGE));
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentDiseasePage = page;
 
-            if (filtered.length === 0) {
+            const start = (page - 1) * DISEASES_PER_PAGE;
+            const end = start + DISEASES_PER_PAGE;
+            const pageItems = currentDiseaseList.slice(start, end);
+
+            results.innerHTML = pageItems.map(d => `
+                <tr>
+                    <td>${d.MaLoaiBenh}</td>
+                    <td><strong>${d.TenBenh || '-'}</strong></td>
+                    <td>${d.MoTa || '-'}</td>
+                </tr>
+            `).join('');
+
+            paginationContainer.innerHTML = renderPaginationControls(totalPages, currentDiseasePage, (p) => renderDiseaseRows(currentDiseaseList, p));
+        }
+
+        async function searchDisease() {
+            const q = (document.getElementById('diseaseSearchInput').value || '').trim();
+            const results = document.getElementById('diseaseSearchResults');
+            if (!q) {
+                if (!diseasesCache) await loadAllDiseases();
+                else renderDiseaseRows(diseasesCache);
+                return;
+            }
+
+            // client-side filter of cached list for simplicity
+            if (!diseasesCache) await loadAllDiseases();
+            const filtered = (diseasesCache || []).filter(d => (d.TenBenh || '').toLowerCase().includes(q.toLowerCase()) || (d.MaLoaiBenh || '').toString().includes(q));
+            if (!filtered || filtered.length === 0) {
                 results.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
                 return;
             }
-
-            results.innerHTML = filtered.map(d => `
-                <tr>
-                    <td>${d.id}</td>
-                    <td><strong>${d.name}</strong></td>
-                    <td>${d.desc}</td>
-                </tr>
-            `).join('');
+            renderDiseaseRows(filtered);
         }
 
         // ========== 5. PRESCRIPTION TABLE FUNCTIONS ==========
