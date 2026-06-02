@@ -32,9 +32,11 @@ class PhieuKhamRepo {
         const pool = await poolPromise;
         const result = await pool.request()
             .query(`
-                SELECT MaPK, MaNV, MaBN, NgayKham, SoThuTu
-                FROM PHIEUKHAM
-                ORDER BY NgayKham ASC, SoThuTu ASC
+                  SELECT pk.MaPK, pk.MaNV, pk.MaBN, pk.NgayKham, pk.SoThuTu,
+                      b.TenBN, b.GioiTinh, b.NgaySinh, b.CCCD, b.SDT
+                FROM PHIEUKHAM pk
+                LEFT JOIN BENHNHAN b ON b.MaBN = pk.MaBN
+                ORDER BY pk.NgayKham ASC, pk.SoThuTu ASC
             `);
         return result.recordset;
     }
@@ -56,6 +58,46 @@ class PhieuKhamRepo {
                 ORDER BY pk.NgayKham DESC;
             `);
         return result.recordset;
+    }
+
+    // Get diseases and symptoms for a specific MaPK
+    async GetDiseasesByMaPK(MaPK) {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('MaPK', sql.Int, MaPK)
+            .query(`
+                SELECT ctlb.MaLoaiBenh, lb.TenBenh, ctlb.TrieuChung, ctlb.GhiChu
+                FROM CT_LOAIBENH ctlb
+                LEFT JOIN LOAIBENH lb ON lb.MaLoaiBenh = ctlb.MaLoaiBenh
+                WHERE ctlb.MaPK = @MaPK
+            `);
+        return result.recordset;
+    }
+
+    async GetPrescriptionsByMaPK(MaPK) {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('MaPK', sql.Int, MaPK)
+            .query(`
+                SELECT ct.MaThuoc, t.TenThuoc, ct.SoLuongThuoc, ct.DonGiaBan, ct.ThanhTien,
+                       dvt.TenDVT as DonVi, cd.MoTaCachDung as CachDung
+                FROM CT_PHIEUKHAM ct
+                LEFT JOIN THUOC t ON t.MaThuoc = ct.MaThuoc
+                LEFT JOIN DONVITINH dvt ON dvt.MaDVT = t.MaDVT
+                LEFT JOIN CACHDUNG cd ON cd.MaCachDung = t.MaCachDung
+                WHERE ct.MaPK = @MaPK
+                ORDER BY ct.MaThuoc
+            `);
+        return result.recordset;
+    }
+
+    async DeletePrescription(MaPK, MaThuoc) {
+        const pool = await poolPromise;
+        await pool.request()
+            .input('MaPK', sql.Int, MaPK)
+            .input('MaThuoc', sql.Int, MaThuoc)
+            .query('DELETE FROM CT_PHIEUKHAM WHERE MaPK = @MaPK AND MaThuoc = @MaThuoc');
+        return true;
     }
 }
 module.exports = new PhieuKhamRepo();

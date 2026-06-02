@@ -690,11 +690,11 @@
                         <div class="form-row">
                             <div>
                                 <label class="form-label">Mã Phiếu Khám</label>
-                                <input type="text" class="form-control" placeholder="KH001" required>
+                                <input type="text" id="examMaPK" class="form-control" placeholder="KH001" required>
                             </div>
                             <div>
                                 <label class="form-label">Ngày Khám</label>
-                                <input type="date" class="form-control" required>
+                                <input type="date" id="examDate" class="form-control" required>
                             </div>
                             <div>
                                 <label class="form-label">Mã Nhân Viên</label>
@@ -705,29 +705,29 @@
                         <div class="form-row">
                             <div>
                                 <label class="form-label">Họ và Tên</label>
-                                <input type="text" class="form-control" placeholder="Nguyễn Văn A" required>
+                                <input type="text" id="examHoTen" class="form-control" placeholder="Nguyễn Văn A" required>
                             </div>
                             <div>
                                 <label class="form-label">CCCD</label>
-                                <input type="text" class="form-control" placeholder="001234567890" required>
+                                <input type="text" id="examCCCD" class="form-control" placeholder="001234567890" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div>
                                 <label class="form-label">Địa Chỉ</label>
-                                <input type="text" class="form-control" placeholder="123 Đường ABC, TP.HCM" required>
+                                <input type="text" id="examAddress" class="form-control" placeholder="123 Đường ABC, TP.HCM" required>
                             </div>
                             <div>
                                 <label class="form-label">Ngày Sinh</label>
-                                <input type="date" class="form-control" required>
+                                <input type="date" id="examDOB" class="form-control" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div>
                                 <label class="form-label">Giới Tính</label>
-                                <select class="form-select" required>
+                                <select id="examGender" class="form-select" required>
                                     <option value="">-- Chọn --</option>
                                     <option value="Nam">Nam</option>
                                     <option value="Nữ">Nữ</option>
@@ -736,18 +736,18 @@
                             </div>
                             <div>
                                 <label class="form-label">Số Điện Thoại</label>
-                                <input type="tel" class="form-control" placeholder="0901234567" required>
+                                <input type="tel" id="examPhone" class="form-control" placeholder="0901234567" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div>
                                 <label class="form-label">Triệu Chứng</label>
-                                <textarea class="form-control" placeholder="Mô tả triệu chứng..." required></textarea>
+                                <textarea id="examSymptoms" class="form-control" placeholder="Mô tả triệu chứng..." required></textarea>
                             </div>
                             <div>
                                 <label class="form-label">Chẩn Đoán</label>
-                                <textarea class="form-control" placeholder="Chẩn đoán của bác sĩ..." required></textarea>
+                                <textarea id="examDiagnosis" class="form-control" placeholder="Chẩn đoán của bác sĩ..." required></textarea>
                             </div>
                         </div>
 
@@ -1117,6 +1117,10 @@
                     if (sectionId === 'patient-lookup') {
                         loadAllPatients();
                     }
+                    // If opened exam lookup, load full exam list
+                    if (sectionId === 'exam-lookup') {
+                        loadAllExams();
+                    }
                     // If opened medicine lookup, load full medicine list
                     if (sectionId === 'medicine-lookup') {
                         loadAllMedicines();
@@ -1289,80 +1293,220 @@
         }
 
         // ========== 6. MEDICAL EXAMINATION LOOKUP ==========
-        async function searchExam() {
-            const searchInput = document.getElementById('examSearchInput').value.toLowerCase().trim();
+        // client-side cache + pagination for exams
+        let examsCache = null;
+        let currentExamList = null;
+        let currentExamPage = 1;
+        const EXAMS_PER_PAGE = 13;
+
+        async function loadAllExams() {
             const results = document.getElementById('examSearchResults');
-
-            if (!searchInput) {
-                results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Nhập thông tin tìm kiếm...</td></tr>';
-                return;
-            }
-
+            results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Đang tải dữ liệu...</td></tr>';
             try {
                 const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
                 const response = await fetch('http://localhost:5000/api/phieu-kham', {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { Authorization: token ? `Bearer ${token}` : '' }
                 });
-
                 if (!response.ok) {
-                    console.warn('Failed to fetch exams:', response.status);
-                    results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Lỗi tại dờ liệu</td></tr>';
+                    results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Lỗi khi lấy dữ liệu</td></tr>';
                     return;
                 }
-
                 const payload = await response.json();
-                const exams = payload.data || [];
-
-                // Filter by MaPK or MaBN
-                const filtered = exams.filter(e => {
-                    const maPK = (e.MaPK || '').toString().toLowerCase();
-                    const maBN = (e.MaBN || '').toString().toLowerCase();
-                    return maPK.includes(searchInput) || maBN.includes(searchInput);
-                });
-
-                if (filtered.length === 0) {
-                    results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
-                    return;
-                }
-
-                results.innerHTML = filtered.map((e, idx) => `
-                    <tr>
-                        <td>${idx + 1}</td>
-                        <td>${e.MaPK}</td>
-                        <td>${e.TenBN || '-'}</td>
-                        <td><span class="badge ${e.GioiTinh === 'Nam' ? 'bg-primary' : 'bg-info'}">${e.GioiTinh || '-'}</span></td>
-                        <td>${e.NgaySinh || '-'}</td>
-                        <td>${e.NgayKham || '-'}</td>
-                        <td>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="viewExamDetail('${e.MaPK}')">Xem chi tiết</button>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteExam('${e.MaPK}')">Xoa</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                console.error('Error fetching exams:', error);
+                examsCache = payload.data || [];
+                renderExamRows(examsCache);
+            } catch (err) {
+                console.error('Error loading exams:', err);
                 results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Lỗi kết nối</td></tr>';
             }
         }
 
+        function renderExamRows(list, page = 1) {
+            const results = document.getElementById('examSearchResults');
+            const paginationContainerId = 'examPagination';
+            let paginationContainer = document.getElementById(paginationContainerId);
+            if (!paginationContainer) {
+                paginationContainer = document.createElement('div');
+                paginationContainer.id = paginationContainerId;
+                paginationContainer.style.display = 'flex';
+                paginationContainer.style.justifyContent = 'center';
+                paginationContainer.style.marginTop = '12px';
+                const cardBody = document.querySelector('#exam-lookup .card-body');
+                if (cardBody) cardBody.appendChild(paginationContainer);
+            }
+
+            currentExamList = list || [];
+            if (!currentExamList || currentExamList.length === 0) {
+                results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Không có dữ liệu</td></tr>';
+                paginationContainer.innerHTML = '';
+                return;
+            }
+
+            const total = currentExamList.length;
+            const totalPages = Math.max(1, Math.ceil(total / EXAMS_PER_PAGE));
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentExamPage = page;
+
+            const start = (page - 1) * EXAMS_PER_PAGE;
+            const end = start + EXAMS_PER_PAGE;
+            const pageItems = currentExamList.slice(start, end);
+
+            results.innerHTML = pageItems.map((e, idx) => `
+                <tr>
+                    <td>${start + idx + 1}</td>
+                    <td>${e.MaPK}</td>
+                    <td>${e.TenBN || '-'}</td>
+                    <td><span class="badge ${e.GioiTinh === 'Nam' ? 'bg-primary' : 'bg-info'}">${e.GioiTinh || '-'}</span></td>
+                    <td>${formatDate(e.NgaySinh) || '-'}</td>
+                    <td>${formatDate(e.NgayKham) || '-'}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="viewExamDetail('${e.MaPK}')">Xem chi tiết</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteExam('${e.MaPK}')">Xoa</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // render pagination
+            paginationContainer.innerHTML = renderExamPagination(totalPages, currentExamPage);
+        }
+
+        function renderExamPagination(totalPages, currentPage) {
+            const parts = [];
+            function pageButton(n, label, active = false) {
+                return `<button class="page-btn" data-page="${n}" style="margin:0 6px; padding:8px 12px; border-radius:6px; border:1px solid #ccc; background:${active ? '#e74c3c' : 'white'}; color:${active ? 'white' : '#333'};">${label}</button>`;
+            }
+
+            parts.push(`<button class="page-nav" data-page="${Math.max(1, currentPage-1)}" style="margin:0 8px;">&larr;</button>`);
+
+            if (totalPages <= 7) {
+                for (let i=1;i<=totalPages;i++) parts.push(pageButton(i,i, i===currentPage));
+            } else {
+                if (currentPage <= 4) {
+                    for (let i=1;i<=5;i++) parts.push(pageButton(i,i, i===currentPage));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    parts.push(pageButton(totalPages, totalPages));
+                } else if (currentPage >= totalPages - 3) {
+                    parts.push(pageButton(1,1));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    for (let i=totalPages-4;i<=totalPages;i++) parts.push(pageButton(i,i, i===currentPage));
+                } else {
+                    parts.push(pageButton(1,1));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    parts.push(pageButton(currentPage-1, currentPage-1));
+                    parts.push(pageButton(currentPage, currentPage, true));
+                    parts.push(pageButton(currentPage+1, currentPage+1));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    parts.push(pageButton(totalPages, totalPages));
+                }
+            }
+
+            parts.push(`<button class="page-nav" data-page="${Math.min(totalPages, currentPage+1)}" style="margin:0 8px;">&rarr;</button>`);
+
+            setTimeout(() => {
+                const container = document.getElementById('examPagination');
+                if (!container) return;
+                container.querySelectorAll('.page-btn, .page-nav').forEach(btn => {
+                    btn.onclick = () => {
+                        const p = parseInt(btn.getAttribute('data-page'),10);
+                        if (!isNaN(p)) renderExamRows(currentExamList, p);
+                    };
+                });
+            }, 0);
+
+            return parts.join('');
+        }
+
+        // searchExam now filters cached exams client-side
+        async function searchExam() {
+            const searchInput = document.getElementById('examSearchInput').value.toLowerCase().trim();
+            if (!examsCache) await loadAllExams();
+            const results = document.getElementById('examSearchResults');
+            if (!searchInput) {
+                renderExamRows(examsCache);
+                return;
+            }
+
+            const filtered = (examsCache || []).filter(e => {
+                const maPK = (e.MaPK || '').toString().toLowerCase();
+                const tenBN = (e.TenBN || '').toLowerCase();
+                return maPK.includes(searchInput) || tenBN.includes(searchInput);
+            });
+
+            if (filtered.length === 0) {
+                results.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
+                const container = document.getElementById('examPagination'); if (container) container.innerHTML = '';
+                return;
+            }
+
+            renderExamRows(filtered);
+        }
+
         async function viewExamDetail(maPK) {
             try {
-                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
-                const response = await fetch(`http://localhost:5000/api/phieu-kham`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch exam detail');
-
-                const payload = await response.json();
-                const exam = (payload.data || []).find(e => e.MaPK == maPK);
-
+                if (!examsCache) await loadAllExams();
+                const exam = (examsCache || []).find(e => e.MaPK == maPK);
                 if (!exam) {
                     alert(`Không tìm thấy phiếu khám: ${maPK}`);
                     return;
                 }
 
-                alert(`Xem chi tiết phiếu khám: ${maPK}\n\nMã Bệnh Nhân: ${exam.MaBN}\nHọ Tên: ${exam.TenBN}\nNgày Khám: ${exam.NgayKham}`);
+                // Activate exam form section
+                document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                const nav = document.querySelector('[data-section="exam-form"]'); if (nav) nav.classList.add('active');
+                const section = document.getElementById('exam-form'); if (section) section.classList.add('active');
+                document.getElementById('page-title').textContent = 'Chi Tiết Phiếu Khám Bệnh';
+
+                // Populate form fields
+                const setValue = (id, value) => { const el = document.getElementById(id); if (!el) return; el.value = value ?? ''; };
+                setValue('examMaPK', exam.MaPK);
+                setValue('examDate', formatDateForInput(exam.NgayKham));
+                setValue('examEmployeeId', exam.MaNV || exam.MaNhanVien || '');
+                // optional hidden patient id
+                if (!document.getElementById('examMaBN')) {
+                    const hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.id = 'examMaBN'; document.getElementById('examForm').appendChild(hidden);
+                }
+                setValue('examMaBN', exam.MaBN || '');
+                setValue('examHoTen', exam.TenBN || '');
+                setValue('examCCCD', exam.CCCD || exam.CMND || '');
+                setValue('examAddress', exam.DiaChi || '');
+                setValue('examDOB', formatDateForInput(exam.NgaySinh));
+                setValue('examGender', exam.GioiTinh || '');
+                setValue('examPhone', exam.SoDienThoai || exam.DienThoai || '');
+                // Fetch diseases/symptoms by MaPK and populate
+                try {
+                    const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                    const resp = await fetch(`http://localhost:5000/api/phieu-kham/${encodeURIComponent(exam.MaPK)}/details`, {
+                        headers: { Authorization: token ? `Bearer ${token}` : '' }
+                    });
+                    if (resp.ok) {
+                        const pl = await resp.json();
+                        const rows = pl.data || [];
+                        // Combine TenBenh into disease input, combine TrieuChung into symptoms
+                        const diseases = rows.map(r => r.TenBenh).filter(Boolean).join(', ');
+                        const symptoms = rows.map(r => r.TrieuChung).filter(Boolean).join('; ');
+                        setValue('diseaseType', diseases);
+                        setValue('examSymptoms', symptoms);
+                    }
+                } catch (err) {
+                    console.warn('Failed to load diseases for MaPK', err);
+                }
+                // Load prescription items for this MaPK
+                try {
+                    const token2 = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                    const presResp = await fetch(`http://localhost:5000/api/phieu-kham/${encodeURIComponent(exam.MaPK)}/prescriptions`, {
+                        headers: { Authorization: token2 ? `Bearer ${token2}` : '' }
+                    });
+                    if (presResp.ok) {
+                        const pl2 = await presResp.json();
+                        const items = pl2.data || [];
+                        renderPrescriptionItems(items);
+                    }
+                } catch (err) {
+                    console.warn('Failed to load prescriptions for MaPK', err);
+                }
+                // scroll to top of form
+                section.scrollIntoView({ behavior: 'smooth' });
             } catch (error) {
                 console.error('Error:', error);
                 alert('Lỗi tại dờ liệu');
@@ -1892,6 +2036,63 @@
             table.appendChild(row);
         }
 
+        function renderPrescriptionItems(items) {
+            const table = document.getElementById('prescriptionTable');
+            prescriptionRowCount = 0;
+            if (!items || items.length === 0) {
+                table.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nhấn "Thêm Thuốc" để thêm dòng</td></tr>';
+                return;
+            }
+            table.innerHTML = '';
+            items.forEach((it, idx) => {
+                prescriptionRowCount++;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td><input type="text" class="form-control form-control-sm" value="${escapeHtml(it.MaThuoc || it.TenThuoc || '')}" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" value="${escapeHtml(it.DonVi || '')}" readonly></td>
+                    <td><input type="number" class="form-control form-control-sm" value="${escapeHtml(it.SoLuongThuoc || 0)}" min="0" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" value="${escapeHtml(it.CachDung || '')}" readonly></td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deletePrescription('${escapeHtml(it.MaThuoc)}', this)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s]);
+        }
+
+        async function deletePrescription(maThuoc, buttonElem) {
+            try {
+                const maPK = document.getElementById('examMaPK')?.value;
+                if (!maPK) { alert('Mã phiếu khám không xác định'); return; }
+                if (!confirm(`Xóa thuốc ${maThuoc} khỏi phiếu ${maPK}?`)) return;
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const resp = await fetch(`http://localhost:5000/api/phieu-kham/${encodeURIComponent(maPK)}/prescriptions/${encodeURIComponent(maThuoc)}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: token ? `Bearer ${token}` : '' }
+                });
+                if (!resp.ok) {
+                    const pl = await resp.json().catch(()=>({}));
+                    alert(pl.message || 'Không thể xóa thuốc');
+                    return;
+                }
+                // remove row from DOM
+                const row = buttonElem.closest('tr');
+                if (row) row.remove();
+                prescriptionRowCount = Math.max(0, prescriptionRowCount - 1);
+            } catch (err) {
+                console.error('Delete prescription error', err);
+                alert('Lỗi khi xóa thuốc');
+            }
+        }
+
         // ========== 9. INVOICE TABLE FUNCTIONS ==========
         let invoiceRowCount = 0;
 
@@ -2038,6 +2239,16 @@
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
             return `${day}/${month}/${year}`;
+        }
+
+        function formatDateForInput(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${year}-${month}-${day}`;
         }
 
         function mapPositionByMaCV(maCV, roleName) {

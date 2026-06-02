@@ -61,6 +61,40 @@ class PhieuKhamController {
         }
     }
 
+    async GetDiseasesByMaPK(req, res) {
+        try {
+            const MaPK = parseInt(req.params.maPK, 10);
+            if (isNaN(MaPK)) return res.status(400).json({ status: 'error', message: 'Mã phiếu khám không hợp lệ' });
+            const data = await PhieuKhamService.GetDiseasesByMaPK(MaPK);
+            res.status(200).json({ status: 'success', data });
+        } catch (err) {
+            res.status(400).json({ status: 'error', message: err.message });
+        }
+    }
+
+    async GetPrescriptionsByMaPK(req, res) {
+        try {
+            const MaPK = parseInt(req.params.maPK, 10);
+            if (isNaN(MaPK)) return res.status(400).json({ status: 'error', message: 'Mã phiếu khám không hợp lệ' });
+            const data = await PhieuKhamService.GetPrescriptionsByMaPK(MaPK);
+            res.status(200).json({ status: 'success', data });
+        } catch (err) {
+            res.status(400).json({ status: 'error', message: err.message });
+        }
+    }
+
+    async DeletePrescription(req, res) {
+        try {
+            const MaPK = parseInt(req.params.maPK, 10);
+            const MaThuoc = parseInt(req.params.maThuoc, 10);
+            if (isNaN(MaPK) || isNaN(MaThuoc)) return res.status(400).json({ status: 'error', message: 'Mã phiếu hoặc mã thuốc không hợp lệ' });
+            await PhieuKhamService.DeletePrescription(MaPK, MaThuoc);
+            res.status(200).json({ status: 'success', message: 'Xóa thuốc khỏi phiếu khám thành công' });
+        } catch (err) {
+            res.status(400).json({ status: 'error', message: err.message });
+        }
+    }
+
     // Tạo phiếu khám cho bệnh nhân đã tồn tại (backfill / khi cần tạo thủ công)
     async CreateForPatient(req, res) {
         try {

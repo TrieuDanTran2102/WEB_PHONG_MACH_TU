@@ -279,6 +279,18 @@ INSERT INTO CT_PHIEUKHAM (MaPK, MaThuoc, SoLuongThuoc, DonGiaBan, ThanhTien) VAL
 (4, 4, 2, 7000, 14000),
 (5, 1, 1, 5000, 5000);
 
+-- Additional sample prescriptions for testing
+INSERT INTO CT_PHIEUKHAM (MaPK, MaThuoc, SoLuongThuoc, DonGiaBan, ThanhTien) VALUES
+(1, 2, 1, 10000, 10000),
+(2, 1, 3, 5000, 15000),
+(2, 4, 1, 7000, 7000),
+(3, 3, 2, 3000, 6000),
+(3, 1, 1, 5000, 5000),
+(4, 5, 2, 25000, 50000),
+(4, 2, 1, 10000, 10000),
+(5, 3, 5, 3000, 15000),
+(5, 4, 1, 7000, 7000);
+
 
 --12. HOADON
 INSERT INTO HOADON (MaPK, NgayLap, TongTienThuoc, TienKham, TongTien) VALUES
@@ -292,3 +304,13 @@ INSERT INTO THAMSO (TenThamSo, GiaTri) VALUES
 ('SoBenhNhanToiDa',   40),
 ('TienKham',          30000),
 ('TyLeTinhDonGiaBan', 1.5);
+
+--13. CT_LOAIBENH
+INSERT INTO CT_LOAIBENH (MaPK, MaLoaiBenh, TrieuChung, GhiChu) VALUES
+(1, 1, N'Sốt cao, đau đầu, mệt mỏi', N'Bệnh thường gặp vào mùa đông'),
+(2, 2, N'Sốt nhẹ, đau họng', N'Bệnh thường gặp vào mùa hè'),
+(3, 3, N'Đau vùng thượng vị, buồn nôn', N'Bệnh thường gặp khi ăn uống không hợp vệ sinh'),
+(4, 4, N'Ngứa da, nổi mề đay', N'Bệnh thường gặp khi tiếp xúc với dị nguyên'),
+(5, 5, N'Đau họng, khó nuốt', N'Bệnh thường gặp vào mùa lạnh');	
+
+--14. CT_PIEUKHAM

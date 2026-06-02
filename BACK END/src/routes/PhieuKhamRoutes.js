@@ -30,4 +30,23 @@ router.get(
     PhieuKhamController.GetHistoryByPatient
 );
 
+router.get(
+    '/:maPK/details',
+    XacThuc,
+    PhieuKhamController.GetDiseasesByMaPK
+);
+
+router.get(
+    '/:maPK/prescriptions',
+    XacThuc,
+    PhieuKhamController.GetPrescriptionsByMaPK
+);
+
+router.delete(
+    '/:maPK/prescriptions/:maThuoc',
+    XacThuc,
+    PhanQuyen('LeTan', 'BacSi', 'Admin'),
+    PhieuKhamController.DeletePrescription
+);
+
 module.exports = router;

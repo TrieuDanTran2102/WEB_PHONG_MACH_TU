@@ -45,8 +45,13 @@ class PhieuKhamService {
             MaPK: pk.MaPK,
             MaNV: pk.MaNV,
             MaBN: pk.MaBN,
-            NgayKham: pk.NgayKham.toISOString().split('T')[0],
-            SoThuTu: pk.SoThuTu
+            NgayKham: pk.NgayKham ? (new Date(pk.NgayKham)).toISOString().split('T')[0] : null,
+            SoThuTu: pk.SoThuTu,
+            TenBN: pk.TenBN,
+            GioiTinh: pk.GioiTinh,
+            NgaySinh: pk.NgaySinh ? (new Date(pk.NgaySinh)).toISOString().split('T')[0] : null,
+            CCCD: pk.CCCD || null,
+            SoDienThoai: pk.SDT || null
         }));
     }
 
@@ -57,6 +62,34 @@ class PhieuKhamService {
             NgayKham: r.NgayKham.toISOString().split('T')[0],
             TenBenh: r.TenBenh
         }));
+    }
+
+    async GetDiseasesByMaPK(MaPK) {
+        const rows = await PhieuKhamRepo.GetDiseasesByMaPK(MaPK);
+        return rows.map(r => ({
+            MaLoaiBenh: r.MaLoaiBenh,
+            TenBenh: r.TenBenh,
+            TrieuChung: r.TrieuChung,
+            GhiChu: r.GhiChu
+        }));
+    }
+
+    async GetPrescriptionsByMaPK(MaPK) {
+        const rows = await PhieuKhamRepo.GetPrescriptionsByMaPK(MaPK);
+        return rows.map(r => ({
+            MaThuoc: r.MaThuoc,
+            TenThuoc: r.TenThuoc,
+            SoLuongThuoc: r.SoLuongThuoc,
+            DonGiaBan: r.DonGiaBan,
+            ThanhTien: r.ThanhTien,
+            DonVi: r.DonVi,
+            CachDung: r.CachDung
+        }));
+    }
+
+    async DeletePrescription(MaPK, MaThuoc) {
+        await PhieuKhamRepo.DeletePrescription(MaPK, MaThuoc);
+        return true;
     }
 }
 
