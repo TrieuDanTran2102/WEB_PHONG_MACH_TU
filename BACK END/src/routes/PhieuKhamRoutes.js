@@ -16,4 +16,12 @@ router.post(
     PhieuKhamController.Create
 );
 
+// Tạo phiếu khám cho bệnh nhân đã có (roles: LeTan, BacSi, Admin)
+router.post(
+    '/create-for-patient',
+    XacThuc,
+    PhanQuyen('LeTan', 'BacSi', 'Admin'),
+    PhieuKhamController.CreateForPatient
+);
+
 module.exports = router;

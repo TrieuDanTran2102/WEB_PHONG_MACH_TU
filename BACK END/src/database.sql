@@ -287,3 +287,8 @@ INSERT INTO HOADON (MaPK, NgayLap, TongTienThuoc, TienKham, TongTien) VALUES
 (3, '2026-05-11', 15000, 30000, 45000),
 (4, '2026-05-11', 14000, 30000, 44000),
 (5, '2026-10-12', 25000, 30000, 55000);
+
+INSERT INTO THAMSO (TenThamSo, GiaTri) VALUES
+('SoBenhNhanToiDa',   40),
+('TienKham',          30000),
+('TyLeTinhDonGiaBan', 1.5);

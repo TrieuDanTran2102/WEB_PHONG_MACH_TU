@@ -23,7 +23,7 @@ class AppointmentRepo {
                 .input('CCCD', sql.VarChar, data.CCCD)
                 .input('GioiTinh', sql.NVarChar, data.GioiTinh)
                 .input('SDT', sql.VarChar, data.SDT)
-                .input('Email', sql.VarChar, data.Email)
+                .input('Email', sql.VarChar, (data.Email && String(data.Email).trim() !== '') ? data.Email : null)
                 .input('DiaChi', sql.NVarChar, data.DiaChi || '')
                 .input('NgaySinh', sql.Date, data.NgaySinh || null)
                 .query(`
@@ -58,6 +58,30 @@ class AppointmentRepo {
         }
     }
 
+    // Cập nhật thông tin bệnh nhân khi có dữ liệu mới
+    async UpdatePatient(maBN, data) {
+        try {
+            const pool = await poolPromise;
+            await pool.request()
+                .input('MaBN', sql.Int, maBN)
+                .input('TenBN', sql.NVarChar, data.TenBN)
+                .input('GioiTinh', sql.NVarChar, data.GioiTinh)
+                .input('SDT', sql.VarChar, data.SDT)
+                .input('Email', sql.VarChar, (data.Email && String(data.Email).trim() !== '') ? data.Email : null)
+                .input('DiaChi', sql.NVarChar, data.DiaChi || '')
+                .input('NgaySinh', sql.Date, data.NgaySinh || null)
+                .query(`
+                    UPDATE BENHNHAN
+                    SET TenBN = @TenBN, GioiTinh = @GioiTinh, SDT = @SDT,
+                        Email = @Email, DiaChi = @DiaChi, NgaySinh = @NgaySinh
+                    WHERE MaBN = @MaBN
+                `);
+            return true;
+        } catch (error) {
+            throw new Error(`Lỗi cập nhật bệnh nhân: ${error.message}`);
+        }
+    }
+
     // Đặt lịch khám với transaction
     async BookAppointment(patientData) {
         let connection;
@@ -86,7 +110,7 @@ class AppointmentRepo {
                 .input('CCCD', sql.VarChar, patientData.CCCD)
                 .input('GioiTinh', sql.NVarChar, patientData.GioiTinh)
                 .input('SDT', sql.VarChar, patientData.SDT)
-                .input('Email', sql.VarChar, patientData.Email)
+                .input('Email', sql.VarChar, (patientData.Email && String(patientData.Email).trim() !== '') ? patientData.Email : null)
                 .input('DiaChi', sql.NVarChar, patientData.DiaChi || '')
                 .input('NgaySinh', sql.Date, patientData.NgaySinh || null);
             

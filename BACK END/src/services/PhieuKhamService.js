@@ -1,48 +1,51 @@
 const PhieuKhamRepo = require('../repositories/PhieuKhamRepo');
-const ThamSoRepo = require('../repositories/ThamSoRepo'); // Tận dụng lại repo tham số
+const ThamSoRepo = require('../repositories/ThamSoRepo');
+
+// Giá trị mặc định nếu chưa cấu hình THAMSO
+const DEFAULT_SO_BENH_NHAN_TOI_DA = 40;
 
 class PhieuKhamService {
     async CreatePhieuKham(MaNV, MaBN) {
-        // Lấy ngày hiện tại (Format: YYYY-MM-DD để khớp kiểu DATE trong SQL)
         const today = new Date().toISOString().split('T')[0];
 
         // 1. Lấy quy định "Số bệnh nhân tối đa" từ DB
-        const maxBenhNhan = await ThamSoRepo.GetByName('SoBenhNhanToiDa');
-        
-        if (!maxBenhNhan) {
-            throw new Error('Chưa cấu hình quy định Số Bệnh Nhân Tối Đa trong hệ thống!');
+        //    Nếu chưa cấu hình → dùng giá trị mặc định (không throw lỗi)
+        let maxBenhNhan = await ThamSoRepo.GetByName('SoBenhNhanToiDa');
+        if (!maxBenhNhan || isNaN(Number(maxBenhNhan))) {
+            maxBenhNhan = DEFAULT_SO_BENH_NHAN_TOI_DA;
+        } else {
+            maxBenhNhan = Number(maxBenhNhan);
         }
 
         // 2. Đếm số lượng phiếu khám đã lập trong ngày hôm nay
         const countToday = await PhieuKhamRepo.CountByDate(today);
 
-        // 3. Kiểm tra logic cốt lõi
+        // 3. Kiểm tra giới hạn
         if (countToday >= maxBenhNhan) {
-            throw new Error(`Phòng mạch đã đạt giới hạn tối đa ${maxBenhNhan} bệnh nhân trong ngày hôm nay. Không thể tiếp nhận thêm!`);
+            throw new Error(
+                `Phòng mạch đã đạt giới hạn tối đa ${maxBenhNhan} bệnh nhân trong ngày hôm nay. Không thể tiếp nhận thêm!`
+            );
         }
 
-        // 4. Nếu qua được cửa kiểm tra, tiến hành lưu phiếu khám (repo sẽ tính SoThuTu)
+        // 4. Lưu phiếu khám (Trigger DB tự tính SoThuTu)
         const pkData = await PhieuKhamRepo.Create(MaNV, MaBN, today);
-        
+
         return {
             MaPK: pkData.MaPK,
             MaNV,
             MaBN,
             NgayKham: today,
-            SoThuTu: pkData.SoThuTu // Lấy SoThuTu từ database
+            SoThuTu: pkData.SoThuTu
         };
     }
 
     async GetAllPhieuKham() {
-        // Lấy tất cả phiếu khám từ DB (đã sắp xếp theo NgayKham và SoThuTu)
         const phieuKhamList = await PhieuKhamRepo.GetAll();
-
-        // Chế thế ngày thành chuỗi đăng DATE
         return phieuKhamList.map(pk => ({
             MaPK: pk.MaPK,
             MaNV: pk.MaNV,
             MaBN: pk.MaBN,
-            NgayKham: pk.NgayKham.toISOString().split('T')[0], // YYYY-MM-DD format
+            NgayKham: pk.NgayKham.toISOString().split('T')[0],
             SoThuTu: pk.SoThuTu
         }));
     }

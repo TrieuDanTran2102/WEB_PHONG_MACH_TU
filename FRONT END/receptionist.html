@@ -615,6 +615,14 @@
                             </div>
                         </div>
 
+                        <div class="form-row">
+                            <div>
+                                <label class="form-label">Email <span style="color:#888; font-size:12px;">(không bắt buộc)</span></label>
+                                <input type="email" id="patientEmail" class="form-control" placeholder="example@gmail.com">
+                            </div>
+                            <div></div>
+                        </div>
+
                         <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Lập Hồ Sơ</button>
                         <button type="reset" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Đặt Lại</button>
                     </form>
@@ -1497,36 +1505,50 @@
         document.getElementById('patientRecordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+
+            // Email: chỉ gửi nếu người dùng có nhập, không nhập → không đưa vào body (backend sẽ lưu NULL)
+            const emailRaw = (document.getElementById('patientEmail')?.value || '').trim();
+
             const formData = {
-                TenBN: document.getElementById('patientName').value.trim(),
-                NgaySinh: document.getElementById('patientDOB').value.trim(),
+                TenBN:    document.getElementById('patientName').value.trim(),
+                NgaySinh: document.getElementById('patientDOB').value.trim() || null,
                 GioiTinh: document.getElementById('patientGender').value.trim(),
-                CCCD: document.getElementById('patientCCCD').value.trim(),
-                SDT: document.getElementById('patientPhone').value.trim(),
-                DiaChi: document.getElementById('patientAddress').value.trim(),
-                Email: 'receptionist@clinic.local', // Placeholder email for offline registration
-                NgayKham: new Date().toISOString().split('T')[0], // Today's date
-                MaNV: sessionStorage.getItem('auth_employee_id') || localStorage.getItem('auth_employee_id') || null
+                CCCD:     document.getElementById('patientCCCD').value.trim(),
+                SDT:      document.getElementById('patientPhone').value.trim(),
+                DiaChi:   document.getElementById('patientAddress').value.trim() || null,
             };
 
+            // Chỉ đính kèm Email nếu có giá trị
+            if (emailRaw !== '') {
+                formData.Email = emailRaw;
+            }
+
             try {
-                const response = await fetch('http://localhost:5000/api/appointments/book', {
+                // Gọi đúng API: POST /api/benh-nhan (tạo bệnh nhân, MaBN do SQL Server IDENTITY tự sinh)
+                const response = await fetch('http://localhost:5000/api/benh-nhan', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+                    },
                     body: JSON.stringify(formData)
                 });
 
                 const result = await response.json();
 
                 if (!response.ok) {
-                    const errorMsg = result.errors?.join('\n') || result.message || 'Lập hồ sơ thất bại';
+                    const errorMsg = result.message || 'Lập hồ sơ thất bại';
                     alert('Lỗi: ' + errorMsg);
                     return;
                 }
 
-                // Show success modal
-                document.getElementById('successMaBN').textContent = result.data.maBN;
-                document.getElementById('successMaPK').textContent = result.data.maPK;
+                // Show success modal — API trả về { status, maBN, maPK, soThuTu }
+                const newMaBN = result.maBN || result.data?.maBN || '';
+                const newMaPK = result.maPK || result.data?.maPK || '?';
+                const soThuTu = result.soThuTu ? ` (Số thứ tự hôm nay: ${result.soThuTu})` : '';
+                document.getElementById('successMaBN').textContent = newMaBN;
+                document.getElementById('successMaPK').textContent = newMaPK + soThuTu;
                 document.getElementById('successTenBN').textContent = formData.TenBN;
                 document.getElementById('registrationSuccessModal').style.display = 'block';
                 document.getElementById('registrationModalOverlay').style.display = 'block';

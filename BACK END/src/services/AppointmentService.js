@@ -64,10 +64,11 @@ class AppointmentService {
             errors.push('Số điện thoại không hợp lệ (định dạng: 0xxxxxxxxx hoặc +84xxxxxxxxx)');
         }
 
-        if (!data.Email || data.Email.trim() === '') {
-            errors.push('Email không được để trống');
-        } else if (!this.validateEmail(data.Email)) {
-            errors.push('Email không hợp lệ');
+        // Email là tùy chọn. Nếu được cung cấp thì kiểm tra định dạng
+        if (data.Email && data.Email.trim() !== '') {
+            if (!this.validateEmail(data.Email)) {
+                errors.push('Email không hợp lệ');
+            }
         }
 
         if (!data.GioiTinh || data.GioiTinh.trim() === '') {
@@ -124,6 +125,20 @@ class AppointmentService {
                 console.log('[AppointmentService] Bệnh nhân đã tồn tại với MaBN:', existingPatient.MaBN);
                 // Patient exists, create appointment for existing patient
                 maBN = existingPatient.MaBN;
+                // Cập nhật thông tin bệnh nhân nếu frontend gửi dữ liệu mới
+                try {
+                    await AppointmentRepo.UpdatePatient(maBN, {
+                        TenBN: data.TenBN || existingPatient.TenBN,
+                        GioiTinh: data.GioiTinh || existingPatient.GioiTinh,
+                        SDT: data.SDT || existingPatient.SDT,
+                        Email: data.Email || existingPatient.Email,
+                        DiaChi: data.DiaChi || existingPatient.DiaChi,
+                        NgaySinh: data.NgaySinh || existingPatient.NgaySinh
+                    });
+                } catch (updateErr) {
+                    console.warn('[AppointmentService] Cập nhật bệnh nhân thất bại, tiếp tục tạo phiếu khám:', updateErr.message);
+                }
+
                 maPK = await AppointmentRepo.CreateAppointmentForExistingPatient(
                     maBN,
                     data.NgayKham,
@@ -137,7 +152,7 @@ class AppointmentService {
                     CCCD: data.CCCD,
                     GioiTinh: data.GioiTinh,
                     SDT: data.SDT,
-                    Email: data.Email,
+                    Email: (data.Email && String(data.Email).trim() !== '') ? data.Email : null,
                     DiaChi: data.DiaChi || '',
                     NgaySinh: data.NgaySinh || null,
                     NgayKham: data.NgayKham,

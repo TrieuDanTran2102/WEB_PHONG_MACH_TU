@@ -12,8 +12,19 @@ class BenhNhanController {
 
     async Create(req, res) {
         try {
-            const id = await BenhNhanService.Create(req.body);
-            res.status(201).json({ status: 'success', maBN: id });
+            // Lấy MaNV từ JWT token (do XacThuc middleware gắn vào req.user)
+            const MaNV = req.user?.maNV || null;
+
+            const result = await BenhNhanService.Create(req.body, MaNV);
+
+            // result = { maBN, maPK, soThuTu }
+            res.status(201).json({
+                status: 'success',
+                message: 'Lập hồ sơ và tạo phiếu khám thành công!',
+                maBN: result.maBN,
+                maPK: result.maPK,
+                soThuTu: result.soThuTu
+            });
         } catch (error) {
             res.status(error.status || 500).json({ status: 'error', message: error.message });
         }

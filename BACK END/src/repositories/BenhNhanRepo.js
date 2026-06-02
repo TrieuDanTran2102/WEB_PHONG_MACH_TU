@@ -30,14 +30,18 @@ class BenhNhanRepo {
     // Thêm bệnh nhân mới
     async Create(data) {
         const pool = await poolPromise;
+        // Email để NULL nếu không có, DiaChi có thể rỗng
+        const emailValue = (data.Email && data.Email.trim() !== '') ? data.Email.trim() : null;
+        const diaChiValue = (data.DiaChi && data.DiaChi.trim() !== '') ? data.DiaChi.trim() : null;
+
         const result = await pool.request()
-            .input('TenBN', sql.NVarChar, data.TenBN)
-            .input('CCCD', sql.VarChar, data.CCCD)
-            .input('GioiTinh', sql.VarChar, data.GioiTinh)
-            .input('NgaySinh', sql.Date, data.NgaySinh)
-            .input('DiaChi', sql.NVarChar, data.DiaChi)
-            .input('SDT', sql.VarChar, data.SDT)
-            .input('Email', sql.VarChar, data.Email)
+            .input('TenBN',    sql.NVarChar, data.TenBN)
+            .input('CCCD',     sql.VarChar,  data.CCCD)
+            .input('GioiTinh', sql.NVarChar,  data.GioiTinh)
+            .input('NgaySinh', sql.Date,     data.NgaySinh || null)
+            .input('DiaChi',   sql.NVarChar, diaChiValue)
+            .input('SDT',      sql.VarChar,  data.SDT)
+            .input('Email',    sql.VarChar,  emailValue)
             .query(`
                 INSERT INTO BENHNHAN (TenBN, CCCD, GioiTinh, NgaySinh, DiaChi, SDT, Email)
                 OUTPUT INSERTED.MaBN 
@@ -61,7 +65,7 @@ class BenhNhanRepo {
         await pool.request()
             .input('MaBN', sql.Int, MaBN)
             .input('TenBN', sql.NVarChar, dataUpdate.TenBN)
-            .input('GioiTinh', sql.VarChar, dataUpdate.GioiTinh)
+            .input('GioiTinh', sql.NVarChar, dataUpdate.GioiTinh)
             .input('NgaySinh', sql.Date, dataUpdate.NgaySinh)
             .input('DiaChi', sql.NVarChar, dataUpdate.DiaChi)
             .input('SDT', sql.VarChar, dataUpdate.SDT)

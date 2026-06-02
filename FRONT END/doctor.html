@@ -621,6 +621,10 @@
                             <input type="text" class="form-control" id="examId" placeholder="KH001" readonly>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Mã Bệnh Nhân</label>
+                            <input type="number" class="form-control" id="patientId" placeholder="Nhập mã bệnh nhân (MaBN)">
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">Ngày Khám</label>
                             <input type="date" class="form-control" id="examDate">
                         </div>
@@ -1259,19 +1263,47 @@
         }
 
         // ========== FORM ACTIONS ==========
-        function saveExamination() {
+        async function saveExamination() {
             const examId = document.getElementById('examId').value;
+            const patientId = document.getElementById('patientId').value; // MaBN
             const patientName = document.getElementById('patientName').value;
             const examDate = document.getElementById('examDate').value;
             const diagnosis = document.getElementById('diagnosis').value;
 
-            if (!examId || !patientName || !examDate || !diagnosis || appState.prescriptionItems.length === 0) {
-                alert('Vui lòng điền đầy đủ thông tin bắt buộc: Mã phiếu, Tên bệnh nhân, Ngày khám, Chẩn đoán và ít nhất 1 loại thuốc!');
+            if (!patientId || !patientName || !examDate || !diagnosis || appState.prescriptionItems.length === 0) {
+                alert('Vui lòng điền đầy đủ thông tin bắt buộc: Mã bệnh nhân, Tên bệnh nhân, Ngày khám, Chẩn đoán và ít nhất 1 loại thuốc!');
                 return;
             }
 
-            alert(`Phiếu khám cho bệnh nhân ${patientName} đã được lưu thành công!`);
-            clearExamForm();
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const res = await fetch('http://localhost:5000/api/phieu-kham/create-for-patient', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+                    },
+                    body: JSON.stringify({ MaBN: Number(patientId) })
+                });
+
+                const payload = await res.json();
+                if (!res.ok) {
+                    alert('Lỗi khi tạo phiếu khám: ' + (payload.message || payload.error || 'Không xác định'));
+                    return;
+                }
+
+                // payload.data chứa MaPK, SoThuTu, NgayKham
+                const pk = payload.data?.MaPK || payload.data?.MaPk || payload.data?.MaPK === 0 ? payload.data.MaPK : null;
+                const soThuTu = payload.data?.SoThuTu;
+
+                if (pk) document.getElementById('examId').value = pk;
+
+                alert(`Tạo phiếu khám thành công! Mã PK: ${pk || ''} ${soThuTu ? '(Số thứ tự: ' + soThuTu + ')' : ''}`);
+                clearExamForm();
+            } catch (err) {
+                console.error('Error creating phieu kham', err);
+                alert('Lỗi kết nối khi tạo phiếu khám');
+            }
         }
 
         function clearExamForm() {

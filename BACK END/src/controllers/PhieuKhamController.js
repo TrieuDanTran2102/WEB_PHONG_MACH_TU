@@ -44,6 +44,23 @@ class PhieuKhamController {
             });
         }
     }
+
+    // Tạo phiếu khám cho bệnh nhân đã tồn tại (backfill / khi cần tạo thủ công)
+    async CreateForPatient(req, res) {
+        try {
+            const { MaBN } = req.body;
+            const MaNV = req.user?.maNV || null;
+
+            if (!MaBN) {
+                return res.status(400).json({ status: 'error', message: 'Vui lòng cung cấp Mã bệnh nhân!' });
+            }
+
+            const result = await PhieuKhamService.CreatePhieuKham(MaNV, MaBN);
+            res.status(201).json({ status: 'success', message: 'Tạo phiếu khám thành công', data: result });
+        } catch (error) {
+            res.status(400).json({ status: 'error', message: error.message });
+        }
+    }
 }
 
 module.exports = new PhieuKhamController();
