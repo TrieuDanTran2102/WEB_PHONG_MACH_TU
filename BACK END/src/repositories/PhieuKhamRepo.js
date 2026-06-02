@@ -38,5 +38,24 @@ class PhieuKhamRepo {
             `);
         return result.recordset;
     }
+
+    async GetHistoryByPatient(MaBN, years = 5) {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('MaBN', sql.Int, MaBN)
+            .input('Years', sql.Int, years)
+            .query(`
+                SELECT pk.MaPK, pk.NgayKham,
+                    STRING_AGG(lb.TenBenh, ', ') AS TenBenh
+                FROM PHIEUKHAM pk
+                LEFT JOIN CT_LOAIBENH ctlb ON ctlb.MaPK = pk.MaPK
+                LEFT JOIN LOAIBENH lb ON lb.MaLoaiBenh = ctlb.MaLoaiBenh
+                WHERE pk.MaBN = @MaBN
+                  AND pk.NgayKham >= DATEADD(year, -@Years, GETDATE())
+                GROUP BY pk.MaPK, pk.NgayKham
+                ORDER BY pk.NgayKham DESC;
+            `);
+        return result.recordset;
+    }
 }
 module.exports = new PhieuKhamRepo();

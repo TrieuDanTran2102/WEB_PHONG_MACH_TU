@@ -24,4 +24,10 @@ router.post(
     PhieuKhamController.CreateForPatient
 );
 
+router.get(
+    '/history/:maBN',
+    XacThuc,
+    PhieuKhamController.GetHistoryByPatient
+);
+
 module.exports = router;

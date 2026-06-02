@@ -45,6 +45,22 @@ class PhieuKhamController {
         }
     }
 
+    async GetHistoryByPatient(req, res) {
+        try {
+            const MaBN = parseInt(req.params.maBN, 10);
+            const years = req.query.years ? parseInt(req.query.years, 10) : 5;
+
+            if (isNaN(MaBN)) {
+                return res.status(400).json({ status: 'error', message: 'Mã bệnh nhân không hợp lệ' });
+            }
+
+            const data = await PhieuKhamService.GetHistoryByPatient(MaBN, years);
+            res.status(200).json({ status: 'success', data });
+        } catch (err) {
+            res.status(400).json({ status: 'error', message: err.message });
+        }
+    }
+
     // Tạo phiếu khám cho bệnh nhân đã tồn tại (backfill / khi cần tạo thủ công)
     async CreateForPatient(req, res) {
         try {

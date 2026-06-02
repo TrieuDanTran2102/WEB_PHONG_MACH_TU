@@ -24,7 +24,7 @@ router.post(
 router.put(
     '/:id', 
     XacThuc, 
-    PhanQuyen('LeTan'), 
+    PhanQuyen('LeTan', 'Lễ tân'), 
     BenhNhanController.Update
 );
 
@@ -32,6 +32,19 @@ router.delete(
     '/:id', 
     XacThuc, 
     BenhNhanController.Delete
+);
+
+router.get(
+    '/by-cccd/:cccd',
+    XacThuc,
+    BenhNhanController.GetProfileAndHistoryByCCCD
+);
+
+router.put(
+    '/by-cccd/:cccd',
+    XacThuc,
+    PhanQuyen('LeTan', 'Lễ tân'),
+    BenhNhanController.UpdateByCCCD
 );
 
 module.exports = router;

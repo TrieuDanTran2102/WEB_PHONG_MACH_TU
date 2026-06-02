@@ -45,17 +45,40 @@ class BenhNhanService {
         return { message: 'Cập nhật thành công' };
     }
 
+    async GetProfileAndHistoryByCCCD(cccd, years = 5) {
+        const bn = await BenhNhanRepo.GetByCCCD(cccd);
+        if (!bn) throw { status: 404, message: 'Không tìm thấy bệnh nhân với CCCD đã cho' };
+
+        const history = await PhieuKhamService.GetHistoryByPatient(bn.MaBN, years);
+
+        return {
+            profile: {
+                MaBN: bn.MaBN,
+                TenBN: bn.TenBN,
+                NgaySinh: bn.NgaySinh ? (new Date(bn.NgaySinh)).toISOString().split('T')[0] : null,
+                GioiTinh: bn.GioiTinh,
+                CCCD: bn.CCCD,
+                SDT: bn.SDT,
+                DiaChi: bn.DiaChi
+            },
+            history
+        };
+    }
+
+    async UpdateByCCCD(cccd, dataUpdate) {
+        const bn = await BenhNhanRepo.GetByCCCD(cccd);
+        if (!bn) throw { status: 404, message: 'Không tìm thấy bệnh nhân với CCCD đã cho' };
+
+        await BenhNhanRepo.Update(bn.MaBN, dataUpdate);
+        return { message: 'Cập nhật thành công' };
+    }
+
     async Delete(MaBN) {
         const check = await BenhNhanRepo.GetById(MaBN);
         if (!check) throw { status: 404, message: 'Không tìm thấy bệnh nhân!' };
-
-        // Kiểm tra xem đã từng khám chưa
-        const daKham = await BenhNhanRepo.CheckCoPhieuKham(MaBN);
-        if (daKham) {
-            throw { status: 400, message: 'Bệnh nhân đã có lịch sử khám, không thể xóa!' };
-        }
-        // Gọi đúng tên method trong Repo (Remove, không phải Delete)
-        return await BenhNhanRepo.Remove(MaBN);
+        // Xóa kèm các phiếu khám liên quan
+        await BenhNhanRepo.RemoveCascade(MaBN);
+        return { message: 'Đã xóa bệnh nhân và các phiếu khám liên quan' };
     }
 }
 module.exports = new BenhNhanService();

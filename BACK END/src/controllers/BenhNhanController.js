@@ -48,6 +48,28 @@ class BenhNhanController {
         }
     }
 
+    async GetProfileAndHistoryByCCCD(req, res) {
+        try {
+            const cccd = req.params.cccd;
+            const years = req.query.years ? parseInt(req.query.years, 10) : 5;
+            const data = await BenhNhanService.GetProfileAndHistoryByCCCD(cccd, years);
+            res.status(200).json({ status: 'success', data });
+        } catch (error) {
+            res.status(error.status || 500).json({ status: 'error', message: error.message });
+        }
+    }
+
+    async UpdateByCCCD(req, res) {
+        try {
+            const cccd = req.params.cccd;
+            const dataUpdate = req.body;
+            const result = await BenhNhanService.UpdateByCCCD(cccd, dataUpdate);
+            res.status(200).json({ status: 'success', data: result });
+        } catch (error) {
+            res.status(error.status || 500).json({ status: 'error', message: error.message });
+        }
+    }
+
     async Delete(req, res) {
         try {
             await BenhNhanService.Delete(req.params.id);

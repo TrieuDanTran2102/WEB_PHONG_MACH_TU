@@ -1391,6 +1391,7 @@
         }
 
         // Patient detail and delete handlers (mirror exam handlers)
+        // Open edit modal and load profile + 5-year history by CCCD
         async function viewPatientDetail(maBN) {
             try {
                 if (!patientsCache) await loadAllPatients();
@@ -1399,22 +1400,215 @@
                     alert(`Không tìm thấy bệnh nhân: ${maBN}`);
                     return;
                 }
-                alert(`Chi tiết bệnh nhân\n\nMã Bệnh Nhân: ${patient.MaBN}\nHọ Tên: ${patient.TenBN}\nNgày Sinh: ${patient.NgaySinh}\nGiới Tính: ${patient.GioiTinh}\nĐịa Chỉ: ${patient.DiaChi}`);
+
+                // Determine CCCD: prefer cached patient.CCCD, otherwise fetch full list
+                let cccd = patient.CCCD;
+                if (!cccd) {
+                    const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                    const resp = await fetch('http://localhost:5000/api/benh-nhan', {
+                        headers: { Authorization: token ? `Bearer ${token}` : '' }
+                    });
+                    if (resp.ok) {
+                        const pl = await resp.json();
+                        const full = pl.data || [];
+                        const found = full.find(f => f.MaBN == maBN);
+                        cccd = found?.CCCD;
+                    }
+                }
+
+                if (!cccd) {
+                    alert('Không có CCCD cho bệnh nhân này. Không thể tải lịch sử.');
+                    return;
+                }
+
+                // Fetch profile + history by CCCD
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const response = await fetch(`http://localhost:5000/api/benh-nhan/by-cccd/${encodeURIComponent(cccd)}` + '?years=5', {
+                    headers: { Authorization: token ? `Bearer ${token}` : '' }
+                });
+
+                if (!response.ok) {
+                    alert('Lỗi khi lấy dữ liệu bệnh nhân');
+                    return;
+                }
+
+                const payload = await response.json();
+                const data = payload.data || {};
+                const profile = data.profile || {};
+                const history = data.history || [];
+
+                // Populate edit form
+                document.getElementById('editPatientId').value = profile.MaBN || maBN;
+                document.getElementById('editPatientName').value = profile.TenBN || '';
+                document.getElementById('editPatientDOB').value = profile.NgaySinh || '';
+                document.getElementById('editPatientGender').value = profile.GioiTinh || '';
+                document.getElementById('editPatientCCCD').value = profile.CCCD || '';
+                document.getElementById('editPatientPhone').value = profile.SDT || '';
+                document.getElementById('editPatientAddress').value = profile.DiaChi || '';
+                document.getElementById('editPatientEmail').value = profile.Email || '';
+
+                // Populate history table inside modal
+                const histTbody = document.getElementById('editHistoryTable');
+                if (!history || history.length === 0) {
+                    histTbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Không có dữ liệu</td></tr>';
+                } else {
+                    histTbody.innerHTML = history.map((h, idx) => `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td>${h.MaPK}</td>
+                            <td>${h.TenBenh || '-'}</td>
+                            <td>${h.NgayKham || '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                // Show modal
+                document.getElementById('editPatientModal').style.display = 'block';
+                document.getElementById('modalOverlay').style.display = 'block';
             } catch (error) {
                 console.error('Error:', error);
                 alert('Lỗi tại dữ liệu');
             }
         }
 
-        function deletePatient(maBN) {
+        async function deletePatient(maBN) {
             if (!confirm(`Xóa bệnh nhân ${maBN}?`)) return;
-            const idx = mockPatients.findIndex(p => p.id === maBN);
-            if (idx > -1) {
-                mockPatients.splice(idx, 1);
-                searchPatient();
-                alert(`Đã xóa bệnh nhân: ${maBN}`);
-            } else {
-                alert('Không tìm thấy bệnh nhân.');
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const resp = await fetch(`http://localhost:5000/api/benh-nhan/${encodeURIComponent(maBN)}`, {
+                    method: 'DELETE',
+                    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+                });
+
+                const payload = await resp.json().catch(() => ({}));
+                if (!resp.ok) {
+                    const msg = payload.message || 'Lỗi khi xóa bệnh nhân';
+                    alert('Lỗi: ' + msg);
+                    return;
+                }
+
+                alert('Xóa bệnh nhân thành công');
+                // Refresh list
+                await loadAllPatients();
+            } catch (err) {
+                console.error('Error deleting patient:', err);
+                alert('Lỗi kết nối khi xóa bệnh nhân');
+            }
+        }
+
+        // Edit Patient Modal markup and handlers
+        // Insert modal HTML at end of body via JS to keep patch small
+        (function createEditPatientModal() {
+            const modalHtml = `
+            <div id="editPatientModal" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 1001; width: 820px; max-width: 96%;">
+                <h4 style="color:#1f3a93; margin-bottom:12px;">Cập Nhật Hồ Sơ Bệnh Nhân</h4>
+                <form id="editPatientForm">
+                    <input type="hidden" id="editPatientId">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <div>
+                            <label class="form-label">Họ và Tên</label>
+                            <input id="editPatientName" class="form-control" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Ngày Sinh</label>
+                            <input id="editPatientDOB" type="date" class="form-control">
+                        </div>
+                        <div>
+                            <label class="form-label">Giới Tính</label>
+                            <select id="editPatientGender" class="form-select">
+                                <option value="">-- Chọn --</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">CCCD</label>
+                            <input id="editPatientCCCD" class="form-control" readonly>
+                        </div>
+                        <div>
+                            <label class="form-label">Số Điện Thoại</label>
+                            <input id="editPatientPhone" class="form-control">
+                        </div>
+                        <div>
+                            <label class="form-label">Email</label>
+                            <input id="editPatientEmail" type="email" class="form-control">
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <label class="form-label">Địa Chỉ</label>
+                            <input id="editPatientAddress" class="form-control">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </form>
+
+                <h5 style="margin-top:18px; color:#1f3a93;">Lịch Sử Khám Bệnh (5 Năm Gần Đây)</h5>
+                <div style="max-height:220px; overflow:auto; margin-top:8px;">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã Phiếu Khám</th>
+                                <th>Loại Bệnh</th>
+                                <th>Ngày Khám</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editHistoryTable"><tr><td colspan="4" class="text-center text-muted">Không có dữ liệu</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="modalOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000;"></div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            // Attach submit handler
+            document.getElementById('editPatientForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await savePatientUpdate();
+            });
+        })();
+
+        async function closeEditModal() {
+            document.getElementById('editPatientModal').style.display = 'none';
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        async function savePatientUpdate() {
+                // Use CCCD to update the record in DB
+                const cccd = document.getElementById('editPatientCCCD').value;
+            const formData = {
+                TenBN: document.getElementById('editPatientName').value.trim(),
+                NgaySinh: document.getElementById('editPatientDOB').value || null,
+                GioiTinh: document.getElementById('editPatientGender').value || null,
+                SDT: document.getElementById('editPatientPhone').value.trim() || null,
+                DiaChi: document.getElementById('editPatientAddress').value.trim() || null,
+                Email: document.getElementById('editPatientEmail').value.trim() || null
+            };
+
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const resp = await fetch(`http://localhost:5000/api/benh-nhan/by-cccd/${encodeURIComponent(cccd)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                    body: JSON.stringify(formData)
+                });
+
+                const payload = await resp.json();
+                if (!resp.ok) {
+                    alert('Lỗi khi cập nhật: ' + (payload.message || 'Không xác định'));
+                    return;
+                }
+
+                alert('Cập nhật hồ sơ thành công');
+                closeEditModal();
+                // Refresh cache and UI
+                await loadAllPatients();
+            } catch (err) {
+                console.error('Error updating patient:', err);
+                alert('Lỗi kết nối khi cập nhật');
             }
         }
 

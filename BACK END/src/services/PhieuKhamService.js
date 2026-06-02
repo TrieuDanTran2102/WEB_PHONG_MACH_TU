@@ -49,6 +49,15 @@ class PhieuKhamService {
             SoThuTu: pk.SoThuTu
         }));
     }
+
+    async GetHistoryByPatient(MaBN, years = 5) {
+        const rows = await PhieuKhamRepo.GetHistoryByPatient(MaBN, years);
+        return rows.map(r => ({
+            MaPK: r.MaPK,
+            NgayKham: r.NgayKham.toISOString().split('T')[0],
+            TenBenh: r.TenBenh
+        }));
+    }
 }
 
 module.exports = new PhieuKhamService();

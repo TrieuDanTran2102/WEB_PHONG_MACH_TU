@@ -33,6 +33,15 @@ class BenhNhanRepo {
         return result.recordset[0];
     }
 
+    // Lấy bệnh nhân theo CCCD
+    async GetByCCCD(cccd) {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('cccd', sql.VarChar, cccd)
+            .query('SELECT * FROM BENHNHAN WHERE CCCD = @cccd');
+        return result.recordset[0];
+    }
+
     // Kiểm tra bệnh nhân đã tồn tại qua CCCD
     async CheckExists(cccd) {
         const pool = await poolPromise;
@@ -99,6 +108,34 @@ class BenhNhanRepo {
         await pool.request()
             .input('MaBN', sql.Int, MaBN)
             .query('DELETE FROM BENHNHAN WHERE MaBN = @MaBN');
+    }
+
+    // Xóa bệnh nhân kèm các phiếu khám liên quan trong 1 transaction
+    async RemoveCascade(MaBN) {
+        const pool = await poolPromise;
+        const transaction = new sql.Transaction(pool);
+        try {
+            await transaction.begin();
+            // Use separate Request objects to avoid re-declaring the same parameter name
+            const req1 = new sql.Request(transaction);
+            await req1.input('MaBN', sql.Int, MaBN)
+                .query('DELETE FROM CT_LOAIBENH WHERE MaPK IN (SELECT MaPK FROM PHIEUKHAM WHERE MaBN = @MaBN)');
+
+            // Delete dependent PHIEUKHAM rows
+            const req2 = new sql.Request(transaction);
+            await req2.input('MaBN', sql.Int, MaBN)
+                .query('DELETE FROM PHIEUKHAM WHERE MaBN = @MaBN');
+
+            // Finally delete BENHNHAN
+            const req3 = new sql.Request(transaction);
+            await req3.input('MaBN', sql.Int, MaBN)
+                .query('DELETE FROM BENHNHAN WHERE MaBN = @MaBN');
+
+            await transaction.commit();
+        } catch (err) {
+            await transaction.rollback();
+            throw err;
+        }
     }
 }
 
