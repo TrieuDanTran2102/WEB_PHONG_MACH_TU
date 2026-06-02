@@ -6,6 +6,17 @@ class BenhNhanService {
         return await BenhNhanRepo.GetAll();
     }
 
+    async GetAllWithLastExam() {
+        const rows = await BenhNhanRepo.GetAllWithLastExam();
+        return rows.map(r => ({
+            MaBN: r.MaBN,
+            TenBN: r.TenBN,
+            NgaySinh: r.NgaySinh ? (new Date(r.NgaySinh)).toISOString().split('T')[0] : null,
+            GioiTinh: r.GioiTinh,
+            NgayTiepNhan: r.NgayTiepNhan ? (new Date(r.NgayTiepNhan)).toISOString().split('T')[0] : null
+        }));
+    }
+
     // MaNV: lấy từ token (req.user.maNV) truyền vào từ Controller
     async Create(data, MaNV) {
         // Validate các trường bắt buộc

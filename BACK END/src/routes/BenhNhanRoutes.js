@@ -9,6 +9,12 @@ router.get(
     BenhNhanController.GetAll
 );
 
+router.get(
+    '/full',
+    XacThuc,
+    BenhNhanController.GetAllWithLastExam
+);
+
 router.post(
     '/', 
     XacThuc, 

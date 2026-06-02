@@ -9,6 +9,21 @@ class BenhNhanRepo {
         return result.recordset;
     }
 
+    // Lấy danh sách bệnh nhân kèm ngày tiếp nhận (ngày khám) gần nhất
+    async GetAllWithLastExam() {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .query(`
+                SELECT b.MaBN, b.TenBN, b.NgaySinh, b.GioiTinh,
+                       MAX(pk.NgayKham) AS NgayTiepNhan
+                FROM BENHNHAN b
+                LEFT JOIN PHIEUKHAM pk ON pk.MaBN = b.MaBN
+                GROUP BY b.MaBN, b.TenBN, b.NgaySinh, b.GioiTinh
+                ORDER BY b.MaBN ASC
+            `);
+        return result.recordset;
+    }
+
     // Lấy thông tin 1 bệnh nhân theo ID (Rất cần thiết cho Service)
     async GetById(MaBN) {
         const pool = await poolPromise;

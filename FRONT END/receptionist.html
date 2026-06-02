@@ -691,6 +691,7 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div id="patientPagination" style="display:flex; justify-content:center; margin-top:12px;"></div>
                 </div>
             </div>
         </div>
@@ -1135,6 +1136,10 @@
                         invoice: 'Lập Hóa Đơn Thanh Toán'
                     };
                     document.getElementById('page-title').textContent = titleMap[sectionId] || 'Trang Chủ';
+                    // If opened patient lookup, load full patient list
+                    if (sectionId === 'patient-lookup') {
+                        loadAllPatients();
+                    }
                 }
             });
         });
@@ -1148,45 +1153,56 @@
 
 
         // ========== 4. PATIENT LOOKUP ==========
-        async function searchPatient() {
-            const searchInput = document.getElementById('patientSearchInput').value.toLowerCase().trim();
-            const results = document.getElementById('patientSearchResults');
+        // cache patients fetched from server for client-side filtering
+        let patientsCache = null;
+        let currentPatientList = null; // currently rendered list (may be filtered)
+        let currentPatientPage = 1;
+        const PATIENTS_PER_PAGE = 13;
 
-            if (!searchInput) {
-                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nhập thông tin tìm kiếm...</td></tr>';
+        async function loadAllPatients() {
+            const results = document.getElementById('patientSearchResults');
+            results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Đang tải dữ liệu...</td></tr>';
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const response = await fetch('http://localhost:5000/api/benh-nhan/full', {
+                    headers: { Authorization: token ? `Bearer ${token}` : '' }
+                });
+                if (!response.ok) {
+                    results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Lỗi khi lấy dữ liệu</td></tr>';
+                    return;
+                }
+                const payload = await response.json();
+                patientsCache = payload.data || [];
+                renderPatientRows(patientsCache);
+            } catch (err) {
+                console.error('Error loading patients:', err);
+                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Lỗi kết nối</td></tr>';
+            }
+        }
+
+        function renderPatientRows(list, page = 1) {
+            const results = document.getElementById('patientSearchResults');
+            const paginationContainer = document.getElementById('patientPagination');
+            currentPatientList = list || [];
+            if (!currentPatientList || currentPatientList.length === 0) {
+                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Không có dữ liệu</td></tr>';
+                if (paginationContainer) paginationContainer.innerHTML = '';
                 return;
             }
 
-            try {
-                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
-                const response = await fetch('http://localhost:5000/api/benh-nhan', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+            const total = currentPatientList.length;
+            const totalPages = Math.max(1, Math.ceil(total / PATIENTS_PER_PAGE));
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentPatientPage = page;
 
-                if (!response.ok) {
-                    console.warn('Failed to fetch patients:', response.status);
-                    results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Lỗi tại dữ liệu</td></tr>';
-                    return;
-                }
+            const start = (page - 1) * PATIENTS_PER_PAGE;
+            const end = start + PATIENTS_PER_PAGE;
+            const pageItems = currentPatientList.slice(start, end);
 
-                const payload = await response.json();
-                const patients = payload.data || [];
-
-                // Filter by MaBN or TenBN
-                const filtered = patients.filter(p => {
-                    const maBN = (p.MaBN || '').toString().toLowerCase();
-                    const tenBN = (p.TenBN || '').toLowerCase();
-                    return maBN.includes(searchInput) || tenBN.includes(searchInput);
-                });
-
-                if (filtered.length === 0) {
-                    results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
-                    return;
-                }
-
-                results.innerHTML = filtered.map(p => {
-                    const birthYear = p.NgaySinh ? new Date(p.NgaySinh).getFullYear() : '-';
-                    return `
+            results.innerHTML = pageItems.map(p => {
+                const birthYear = p.NgaySinh ? new Date(p.NgaySinh).getFullYear() : '-';
+                return `
                     <tr>
                         <td>${p.MaBN}</td>
                         <td>${p.TenBN}</td>
@@ -1198,11 +1214,93 @@
                             <button type="button" class="btn btn-danger btn-sm" onclick="deletePatient('${p.MaBN}')">Xoa</button>
                         </td>
                     </tr>
-                `}).join('');
-            } catch (error) {
-                console.error('Error fetching patients:', error);
-                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Lỗi kết nối</td></tr>';
+                `;
+            }).join('');
+
+            // render pagination controls
+            if (paginationContainer) {
+                paginationContainer.innerHTML = renderPatientPagination(totalPages, currentPatientPage);
             }
+        }
+
+        function renderPatientPagination(totalPages, currentPage) {
+            const parts = [];
+            function pageButton(n, label, active = false) {
+                return `<button class="page-btn" data-page="${n}" style="margin:0 6px; padding:8px 12px; border-radius:6px; border:1px solid #ccc; background:${active ? '#e74c3c' : 'white'}; color:${active ? 'white' : '#333'};">${label}</button>`;
+            }
+
+            // Prev
+            parts.push(`<button class="page-nav" data-page="${Math.max(1, currentPage-1)}" style="margin:0 8px;">&larr;</button>`);
+
+            if (totalPages <= 7) {
+                for (let i=1;i<=totalPages;i++) parts.push(pageButton(i,i, i===currentPage));
+            } else {
+                if (currentPage <= 4) {
+                    for (let i=1;i<=5;i++) parts.push(pageButton(i,i, i===currentPage));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    parts.push(pageButton(totalPages, totalPages));
+                } else if (currentPage >= totalPages - 3) {
+                    parts.push(pageButton(1,1));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    for (let i=totalPages-4;i<=totalPages;i++) parts.push(pageButton(i,i, i===currentPage));
+                } else {
+                    parts.push(pageButton(1,1));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    parts.push(pageButton(currentPage-1, currentPage-1));
+                    parts.push(pageButton(currentPage, currentPage, true));
+                    parts.push(pageButton(currentPage+1, currentPage+1));
+                    parts.push('<span style="margin:0 6px">..</span>');
+                    parts.push(pageButton(totalPages, totalPages));
+                }
+            }
+
+            // Next
+            parts.push(`<button class="page-nav" data-page="${Math.min(totalPages, currentPage+1)}" style="margin:0 8px;">&rarr;</button>`);
+
+            // Attach event after rendering (use delegation)
+            setTimeout(() => {
+                const container = document.getElementById('patientPagination');
+                if (!container) return;
+                container.querySelectorAll('.page-btn, .page-nav').forEach(btn => {
+                    btn.onclick = () => {
+                        const p = parseInt(btn.getAttribute('data-page'),10);
+                        if (!isNaN(p)) renderPatientRows(currentPatientList, p);
+                    };
+                });
+            }, 0);
+
+            return parts.join('');
+        }
+
+        async function searchPatient() {
+            const searchInput = document.getElementById('patientSearchInput').value.toLowerCase().trim();
+            // If cache not loaded yet, load it first
+            if (!patientsCache) {
+                await loadAllPatients();
+            }
+
+            // Use cached list
+            const patients = patientsCache || [];
+            const results = document.getElementById('patientSearchResults');
+
+            // If no search input, show full list
+            if (!searchInput) {
+                renderPatientRows(patients);
+                return;
+            }
+
+            const filtered = patients.filter(p => {
+                const maBN = (p.MaBN || '').toString().toLowerCase();
+                const tenBN = (p.TenBN || '').toLowerCase();
+                return maBN.includes(searchInput) || tenBN.includes(searchInput);
+            });
+
+            if (filtered.length === 0) {
+                results.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Không tìm thấy kết quả</td></tr>';
+                return;
+            }
+
+            renderPatientRows(filtered);
         }
 
         // ========== 6. MEDICAL EXAMINATION LOOKUP ==========
@@ -1295,21 +1393,12 @@
         // Patient detail and delete handlers (mirror exam handlers)
         async function viewPatientDetail(maBN) {
             try {
-                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
-                const response = await fetch(`http://localhost:5000/api/benh-nhan`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch patient detail');
-
-                const payload = await response.json();
-                const patient = (payload.data || []).find(p => p.MaBN == maBN);
-
+                if (!patientsCache) await loadAllPatients();
+                const patient = (patientsCache || []).find(p => p.MaBN == maBN);
                 if (!patient) {
                     alert(`Không tìm thấy bệnh nhân: ${maBN}`);
                     return;
                 }
-
                 alert(`Chi tiết bệnh nhân\n\nMã Bệnh Nhân: ${patient.MaBN}\nHọ Tên: ${patient.TenBN}\nNgày Sinh: ${patient.NgaySinh}\nGiới Tính: ${patient.GioiTinh}\nĐịa Chỉ: ${patient.DiaChi}`);
             } catch (error) {
                 console.error('Error:', error);

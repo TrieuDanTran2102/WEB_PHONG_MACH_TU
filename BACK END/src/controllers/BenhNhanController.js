@@ -10,6 +10,15 @@ class BenhNhanController {
         }
     }
 
+    async GetAllWithLastExam(req, res) {
+        try {
+            const data = await BenhNhanService.GetAllWithLastExam();
+            res.status(200).json({ status: 'success', data });
+        } catch (error) {
+            res.status(500).json({ status: 'error', message: error.message });
+        }
+    }
+
     async Create(req, res) {
         try {
             // Lấy MaNV từ JWT token (do XacThuc middleware gắn vào req.user)
