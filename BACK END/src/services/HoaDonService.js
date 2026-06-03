@@ -21,7 +21,7 @@ exports.ThanhToanHoaDon = async (MaPK) => {
     const existing = await HoaDonRepo.GetByMaPK(MaPK);
         if (existing) throw { status: 400, message: 'Phiếu khám này đã có hóa đơn' };
     // Gọi module ThamSo để lấy Tiền Khám
-    const ResThamSo = await ThamSoRepo.getByName('TienKham'); 
+    const ResThamSo = await ThamSoRepo.GetByName('TienKham'); 
     const TienKham = parseFloat(ResThamSo);
 
     // Tỉnh tổng tiền thuốc 

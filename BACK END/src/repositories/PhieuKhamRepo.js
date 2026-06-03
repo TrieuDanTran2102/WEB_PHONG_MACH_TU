@@ -28,6 +28,52 @@ class PhieuKhamRepo {
         return result.recordset[0].Count;
     }
 
+    async GetFullDetail(MaPK) {
+        const pool = await poolPromise;
+
+        // 1. Thông tin phiếu khám + bệnh nhân
+        const pkResult = await pool.request()
+            .input('MaPK', sql.Int, MaPK)
+            .query(`
+                SELECT 
+                    pk.MaPK, pk.MaNV, pk.MaBN, pk.NgayKham, pk.SoThuTu,
+                    bn.TenBN, bn.CCCD, bn.GioiTinh, bn.NgaySinh, bn.DiaChi, bn.SDT, bn.Email
+                FROM PHIEUKHAM pk
+                JOIN BENHNHAN bn ON bn.MaBN = pk.MaBN
+                WHERE pk.MaPK = @MaPK
+            `);
+        if (!pkResult.recordset[0]) return null;
+
+        // 2. Hóa đơn liên kết (nếu đã có)
+        const hdResult = await pool.request()
+            .input('MaPK', sql.Int, MaPK)
+            .query(`
+                SELECT MaHD, NgayLap, TongTienThuoc, TienKham, TongTien
+                FROM HOADON WHERE MaPK = @MaPK
+            `);
+
+        // 3. Chi tiết đơn thuốc
+        const ctResult = await pool.request()
+            .input('MaPK', sql.Int, MaPK)
+            .query(`
+                SELECT 
+                    ct.MaThuoc, t.TenThuoc, ct.SoLuongThuoc, ct.DonGiaBan, ct.ThanhTien,
+                    dvt.TenDVT, cd.MoTaCachDung AS CachDung
+                FROM CT_PHIEUKHAM ct
+                JOIN THUOC t ON t.MaThuoc = ct.MaThuoc
+                LEFT JOIN DONVITINH dvt ON dvt.MaDVT = t.MaDVT
+                LEFT JOIN CACHDUNG cd ON cd.MaCachDung = t.MaCachDung
+                WHERE ct.MaPK = @MaPK
+                ORDER BY ct.MaThuoc
+            `);
+
+        return {
+            phieuKham: pkResult.recordset[0],
+            hoaDon: hdResult.recordset[0] || null,
+            chiTietThuoc: ctResult.recordset
+        };
+    }
+
     async GetAll() {
         const pool = await poolPromise;
         const result = await pool.request()

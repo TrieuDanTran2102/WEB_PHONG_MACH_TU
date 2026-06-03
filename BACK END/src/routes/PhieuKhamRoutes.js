@@ -9,6 +9,13 @@ router.get(
     PhieuKhamController.GetAll
 );
 
+// Full detail: phiếu khám + bệnh nhân + hóa đơn + đơn thuốc
+router.get(
+    '/:maPK/full-detail',
+    XacThuc,
+    PhieuKhamController.GetFullDetail
+);
+
 router.post(
     '/', 
     XacThuc, 

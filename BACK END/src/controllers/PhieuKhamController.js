@@ -1,6 +1,17 @@
 const PhieuKhamService = require('../services/PhieuKhamService');
 
 class PhieuKhamController {
+    async GetFullDetail(req, res) {
+        try {
+            const MaPK = parseInt(req.params.maPK, 10);
+            if (isNaN(MaPK)) return res.status(400).json({ status: 'error', message: 'Mã phiếu khám không hợp lệ' });
+            const data = await PhieuKhamService.GetFullDetail(MaPK);
+            res.status(200).json({ status: 'success', data });
+        } catch (err) {
+            res.status(err.status || 500).json({ status: 'error', message: err.message });
+        }
+    }
+
     async Create(req, res) {
         try {
             // MaBN lấy từ frontend gửi lên

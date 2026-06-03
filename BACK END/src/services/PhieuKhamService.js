@@ -5,6 +5,47 @@ const ThamSoRepo = require('../repositories/ThamSoRepo');
 const DEFAULT_SO_BENH_NHAN_TOI_DA = 40;
 
 class PhieuKhamService {
+    async GetFullDetail(MaPK) {
+        const data = await PhieuKhamRepo.GetFullDetail(MaPK);
+        if (!data) throw { status: 404, message: `Không tìm thấy phiếu khám ${MaPK}` };
+
+        const pk = data.phieuKham;
+        return {
+            phieuKham: {
+                MaPK:     pk.MaPK,
+                MaNV:     pk.MaNV,
+                MaBN:     pk.MaBN,
+                NgayKham: pk.NgayKham ? pk.NgayKham.toISOString().split('T')[0] : null,
+                SoThuTu:  pk.SoThuTu
+            },
+            benhNhan: {
+                TenBN:    pk.TenBN,
+                CCCD:     pk.CCCD,
+                GioiTinh: pk.GioiTinh,
+                NgaySinh: pk.NgaySinh ? pk.NgaySinh.toISOString().split('T')[0] : null,
+                DiaChi:   pk.DiaChi,
+                SDT:      pk.SDT,
+                Email:    pk.Email
+            },
+            hoaDon: data.hoaDon ? {
+                MaHD:          data.hoaDon.MaHD,
+                NgayLap:       data.hoaDon.NgayLap ? data.hoaDon.NgayLap.toISOString().split('T')[0] : null,
+                TongTienThuoc: data.hoaDon.TongTienThuoc,
+                TienKham:      data.hoaDon.TienKham,
+                TongTien:      data.hoaDon.TongTien
+            } : null,
+            chiTietThuoc: data.chiTietThuoc.map(ct => ({
+                MaThuoc:      ct.MaThuoc,
+                TenThuoc:     ct.TenThuoc,
+                DonVi:        ct.TenDVT,
+                SoLuongThuoc: ct.SoLuongThuoc,
+                DonGiaBan:    ct.DonGiaBan,
+                ThanhTien:    ct.ThanhTien,
+                CachDung:     ct.CachDung
+            }))
+        };
+    }
+
     async CreatePhieuKham(MaNV, MaBN) {
         const today = new Date().toISOString().split('T')[0];
 

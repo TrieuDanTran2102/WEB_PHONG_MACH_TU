@@ -894,43 +894,46 @@
                 </div>
                 <div class="card-body">
                     <form id="invoiceForm">
+                        <!-- Hidden MaPK liên kết phiếu khám -->
+                        <input type="hidden" id="invoiceMaPK">
+
                         <div class="form-row">
                             <div>
-                                <label class="form-label">Mã Hóa Đơn</label>
-                                <input type="text" class="form-control" placeholder="HĐ001" required>
+                                <label class="form-label">Mã Hóa Đơn <span style="color:#888; font-size:12px;">(tự động nếu chưa có)</span></label>
+                                <input type="text" id="invoiceMaHD" class="form-control" placeholder="(Tự động)" readonly style="background:#f5f5f5;">
                             </div>
                             <div>
                                 <label class="form-label">Ngày Xuất Hóa Đơn</label>
-                                <input type="date" class="form-control" required>
+                                <input type="date" id="invoiceDate" class="form-control" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div>
                                 <label class="form-label">Họ và Tên</label>
-                                <input type="text" class="form-control" placeholder="Nguyễn Văn A" required>
+                                <input type="text" id="invoiceHoTen" class="form-control" placeholder="Nguyễn Văn A" required>
                             </div>
                             <div>
                                 <label class="form-label">CCCD</label>
-                                <input type="text" class="form-control" placeholder="001234567890" required>
+                                <input type="text" id="invoiceCCCD" class="form-control" placeholder="001234567890" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div>
                                 <label class="form-label">Địa Chỉ</label>
-                                <input type="text" class="form-control" placeholder="123 Đường ABC, TP.HCM" required>
+                                <input type="text" id="invoiceDiaChi" class="form-control" placeholder="123 Đường ABC, TP.HCM">
                             </div>
                             <div>
                                 <label class="form-label">Ngày Sinh</label>
-                                <input type="date" class="form-control" required>
+                                <input type="date" id="invoiceNgaySinh" class="form-control">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div>
                                 <label class="form-label">Giới Tính</label>
-                                <select class="form-select" required>
+                                <select id="invoiceGioiTinh" class="form-select">
                                     <option value="">-- Chọn --</option>
                                     <option value="Nam">Nam</option>
                                     <option value="Nữ">Nữ</option>
@@ -939,7 +942,7 @@
                             </div>
                             <div>
                                 <label class="form-label">Số Điện Thoại</label>
-                                <input type="tel" class="form-control" placeholder="0901234567" required>
+                                <input type="tel" id="invoiceSDT" class="form-control" placeholder="0901234567">
                             </div>
                         </div>
 
@@ -1443,73 +1446,100 @@
 
         async function viewExamDetail(maPK) {
             try {
-                if (!examsCache) await loadAllExams();
-                const exam = (examsCache || []).find(e => e.MaPK == maPK);
-                if (!exam) {
-                    alert(`Không tìm thấy phiếu khám: ${maPK}`);
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const headers = { Authorization: token ? `Bearer ${token}` : '' };
+
+                // ── BƯỚC 1: Gọi full-detail một lần, dùng cho cả 2 form ──
+                const resp = await fetch(`http://localhost:5000/api/phieu-kham/${encodeURIComponent(maPK)}/full-detail`, { headers });
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    alert('Lỗi: ' + (err.message || 'Không thể lấy thông tin phiếu khám'));
                     return;
                 }
+                const payload = await resp.json();
+                const d   = payload.data || {};
+                const bn  = d.benhNhan    || {};
+                const pk  = d.phieuKham   || {};
+                const hd  = d.hoaDon      || null;
+                const thuoc = d.chiTietThuoc || [];
 
-                // Activate exam form section
-                document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+                // ── BƯỚC 2: Điều hướng sang "Chi Tiết Phiếu Khám" (GIỮ NGUYÊN logic cũ) ──
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                const nav = document.querySelector('[data-section="exam-form"]'); if (nav) nav.classList.add('active');
-                const section = document.getElementById('exam-form'); if (section) section.classList.add('active');
+                const examNav = document.querySelector('[data-section="exam-form"]');
+                const examSection = document.getElementById('exam-form');
+                if (examNav)     examNav.classList.add('active');
+                if (examSection) examSection.classList.add('active');
                 document.getElementById('page-title').textContent = 'Chi Tiết Phiếu Khám Bệnh';
 
-                // Populate form fields
-                const setValue = (id, value) => { const el = document.getElementById(id); if (!el) return; el.value = value ?? ''; };
-                setValue('examMaPK', exam.MaPK);
-                setValue('examDate', formatDateForInput(exam.NgayKham));
-                setValue('examEmployeeId', exam.MaNV || exam.MaNhanVien || '');
-                // optional hidden patient id
+                // ── BƯỚC 3: Điền form Chi Tiết Phiếu Khám (GIỮ NGUYÊN logic cũ) ──
+                const setValue = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
+                setValue('examMaPK',       pk.MaPK || maPK);
+                setValue('examDate',       pk.NgayKham || '');
+                setValue('examEmployeeId', pk.MaNV || '');
                 if (!document.getElementById('examMaBN')) {
-                    const hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.id = 'examMaBN'; document.getElementById('examForm').appendChild(hidden);
+                    const h = document.createElement('input'); h.type = 'hidden'; h.id = 'examMaBN';
+                    document.getElementById('examForm').appendChild(h);
                 }
-                setValue('examMaBN', exam.MaBN || '');
-                setValue('examHoTen', exam.TenBN || '');
-                setValue('examCCCD', exam.CCCD || exam.CMND || '');
-                setValue('examAddress', exam.DiaChi || '');
-                setValue('examDOB', formatDateForInput(exam.NgaySinh));
-                setValue('examGender', exam.GioiTinh || '');
-                setValue('examPhone', exam.SoDienThoai || exam.DienThoai || '');
-                // Fetch diseases/symptoms by MaPK and populate
+                setValue('examMaBN',   pk.MaBN || '');
+                setValue('examHoTen',  bn.TenBN   || '');
+                setValue('examCCCD',   bn.CCCD    || '');
+                setValue('examAddress',bn.DiaChi  || '');
+                setValue('examDOB',    bn.NgaySinh|| '');
+                setValue('examGender', bn.GioiTinh|| '');
+                setValue('examPhone',  bn.SDT     || '');
+
+                // Loại bệnh + triệu chứng (gọi riêng vì cần details)
                 try {
-                    const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
-                    const resp = await fetch(`http://localhost:5000/api/phieu-kham/${encodeURIComponent(exam.MaPK)}/details`, {
-                        headers: { Authorization: token ? `Bearer ${token}` : '' }
-                    });
-                    if (resp.ok) {
-                        const pl = await resp.json();
+                    const detailResp = await fetch(`http://localhost:5000/api/phieu-kham/${encodeURIComponent(maPK)}/details`, { headers });
+                    if (detailResp.ok) {
+                        const pl = await detailResp.json();
                         const rows = pl.data || [];
-                        // Combine TenBenh into disease input, combine TrieuChung into symptoms
-                        const diseases = rows.map(r => r.TenBenh).filter(Boolean).join(', ');
-                        const symptoms = rows.map(r => r.TrieuChung).filter(Boolean).join('; ');
-                        setValue('diseaseType', diseases);
-                        setValue('examSymptoms', symptoms);
+                        setValue('diseaseType',  rows.map(r => r.TenBenh).filter(Boolean).join(', '));
+                        setValue('examSymptoms', rows.map(r => r.TrieuChung).filter(Boolean).join('; '));
                     }
-                } catch (err) {
-                    console.warn('Failed to load diseases for MaPK', err);
+                } catch (err) { console.warn('Failed to load diseases', err); }
+
+                // Đơn thuốc trong form phiếu khám
+                renderPrescriptionItems(thuoc);
+
+                examSection?.scrollIntoView({ behavior: 'smooth' });
+
+                // ── BƯỚC 4: Đồng thời autofill form Lập Hóa Đơn ở nền (KHÔNG chuyển tab) ──
+                setValue('invoiceMaPK',    pk.MaPK || maPK);
+                setValue('invoiceMaHD',    hd ? hd.MaHD : '');
+                setValue('invoiceDate',    hd ? hd.NgayLap : new Date().toISOString().split('T')[0]);
+                setValue('invoiceHoTen',   bn.TenBN   || '');
+                setValue('invoiceCCCD',    bn.CCCD    || '');
+                setValue('invoiceDiaChi',  bn.DiaChi  || '');
+                setValue('invoiceNgaySinh',bn.NgaySinh|| '');
+                setValue('invoiceGioiTinh',bn.GioiTinh|| '');
+                setValue('invoiceSDT',     bn.SDT     || '');
+
+                const tbody = document.getElementById('invoiceTable');
+                if (thuoc.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Phiếu khám chưa có đơn thuốc</td></tr>';
+                } else {
+                    tbody.innerHTML = thuoc.map((t, idx) => `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td>${t.TenThuoc || '-'}</td>
+                            <td>${t.DonVi || '-'}</td>
+                            <td>${t.SoLuongThuoc}</td>
+                            <td>${Number(t.DonGiaBan).toLocaleString('vi-VN')}</td>
+                            <td>${Number(t.ThanhTien).toLocaleString('vi-VN')}</td>
+                        </tr>
+                    `).join('');
                 }
-                // Load prescription items for this MaPK
-                try {
-                    const token2 = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
-                    const presResp = await fetch(`http://localhost:5000/api/phieu-kham/${encodeURIComponent(exam.MaPK)}/prescriptions`, {
-                        headers: { Authorization: token2 ? `Bearer ${token2}` : '' }
-                    });
-                    if (presResp.ok) {
-                        const pl2 = await presResp.json();
-                        const items = pl2.data || [];
-                        renderPrescriptionItems(items);
-                    }
-                } catch (err) {
-                    console.warn('Failed to load prescriptions for MaPK', err);
-                }
-                // scroll to top of form
-                section.scrollIntoView({ behavior: 'smooth' });
+                const tongTienThuoc = thuoc.reduce((sum, t) => sum + Number(t.ThanhTien || 0), 0);
+                const tienKham = hd ? Number(hd.TienKham) : 30000;
+                document.getElementById('examinationFee').textContent = tienKham.toLocaleString('vi-VN') + ' VND';
+                document.getElementById('medicineFee').textContent    = tongTienThuoc.toLocaleString('vi-VN') + ' VND';
+                document.getElementById('totalAmount').textContent    = (tienKham + tongTienThuoc).toLocaleString('vi-VN') + ' VND';
+
             } catch (error) {
-                console.error('Error:', error);
-                alert('Lỗi tại dờ liệu');
+                console.error('viewExamDetail error:', error);
+                alert('Lỗi kết nối: ' + error.message);
             }
         }
 
@@ -2148,12 +2178,37 @@
         }
 
         // ========== INVOICE FORM SUBMISSION ==========
-        document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+        document.getElementById('invoiceForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('Hóa đơn được lập thành công!');
-            this.reset();
-            document.getElementById('invoiceTable').innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nhấn "Thêm Thuốc" để thêm dòng</td></tr>';
-            calculateInvoiceTotal();
+            const MaPK = document.getElementById('invoiceMaPK')?.value;
+            if (!MaPK) {
+                alert('Vui lòng chọn phiếu khám từ "Tra Cứu Phiếu Khám" trước!');
+                return;
+            }
+            const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+            try {
+                const resp = await fetch('http://localhost:5000/api/hoadon/thanh-toan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    },
+                    body: JSON.stringify({ MaPK: Number(MaPK) })
+                });
+                const result = await resp.json();
+                if (!resp.ok) {
+                    alert('Lỗi lập hóa đơn: ' + (result.message || 'Không xác định'));
+                    return;
+                }
+                const hd = result.data || result;
+                alert(`✅ Lập hóa đơn thành công!\nMã HĐ: ${hd.MaHD}\nTổng tiền: ${Number(hd.TongTien).toLocaleString('vi-VN')} VND`);
+                // Cập nhật Mã Hóa Đơn sau khi lập thành công
+                document.getElementById('invoiceMaHD').value = hd.MaHD || '';
+                // Refresh cache phiếu khám
+                examsCache = null;
+            } catch (err) {
+                alert('Lỗi kết nối: ' + err.message);
+            }
         });
 
         // ========== PATIENT REGISTRATION FORM SUBMISSION ==========

@@ -33,7 +33,7 @@ class NhanVienService {
             throw { status: 400, message: 'Nhân viên này đã từng lập phiếu khám, không thể xóa để giữ lịch sử!' };
         }
 
-        await NhanVienRepo.Delete(MaNV);
+        await NhanVienRepo.Remove(MaNV);
         return { message: 'Đã xóa nhân viên và tài khoản!' };
     }
 }

@@ -46,9 +46,10 @@ const CreatePhieuNhap = async ({ NgayNhap, TongTienNhap }, transaction) => {
         .input('TongTienNhap', sql.Decimal(18,2), TongTienNhap)
         .query(`
             INSERT INTO PHIEUNHAPTHUOC (NgayNhap, TongTienNhap)
+            OUTPUT INSERTED.MaPN
             VALUES (@NgayNhap, @TongTienNhap)
         `);
-    return result.recordset[0].MaPN; 
+    return result.recordset[0].MaPN;
 };
 
 // Insert CT_PHIEUNHAPTHUOC vào database
@@ -57,11 +58,11 @@ const CreateChiTiet = async ({ MaPN, MaThuoc, DonGiaNhap, SoLuongNhap, ThanhTien
         .input('MaPN', sql.NVarChar, MaPN)
         .input('MaThuoc', sql.NVarChar, MaThuoc)
         .input('DonGiaNhap', sql.Decimal(18,2), DonGiaNhap)
-        .input('SoLuongNhap', sql.Int, SoLuongNhap)
+        .input('SoLuong', sql.Int, SoLuongNhap)
         .input('ThanhTien', sql.Decimal(18,2), ThanhTien)
         .query(`
-            INSERT INTO CT_PHIEUNHAPTHUOC (MaPN, MaThuoc, DonGiaNhap, SoLuongNhap, ThanhTien)
-            VALUES (@MaPN, @MaThuoc, @DonGiaNhap, @SoLuongNhap, @ThanhTien)
+            INSERT INTO CT_PHIEUNHAPTHUOC (MaPN, MaThuoc, DonGiaNhap, SoLuong, ThanhTien)
+            VALUES (@MaPN, @MaThuoc, @DonGiaNhap, @SoLuong, @ThanhTien)
         `);
 };
 

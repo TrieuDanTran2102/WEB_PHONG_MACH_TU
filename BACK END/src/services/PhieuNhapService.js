@@ -41,7 +41,7 @@ const Create = async (DataInput) => {
     }
 
     // Truy vấn đến tỷ lệ tính giá bán từ tham số
-    const ResThamSo = await ThamSoRepo.getByName('TyLeTinhDonGiaBan');
+    const ResThamSo = await ThamSoRepo.GetByName('TyLeTinhDonGiaBan');
     const TyLe = parseFloat(ResThamSo);
 
     // Tính tổng tiền nhập
@@ -95,7 +95,7 @@ const UpdatePhieuNhap = async (MaPN, MaNV, ChiTiet) => {
     await PhieuNhapRepo.DeleteChiTiet(MaPN, transaction);
 
     let TongTienNhap = 0;
-    const ResThamSo = await ThamSoRepo.getByName('TyLeTinhDonGiaBan');
+    const ResThamSo = await ThamSoRepo.GetByName('TyLeTinhDonGiaBan');
     const TyLe = parseFloat(ResThamSo);
     for (const item of ChiTiet) {
         if (!item.MaThuoc || !item.DonGiaNhap || !item.SoLuongNhap)
