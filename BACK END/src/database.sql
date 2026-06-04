@@ -230,11 +230,73 @@ INSERT INTO BENHNHAN (TenBN, CCCD, GioiTinh, NgaySinh, DiaChi, SDT, Email) VALUE
 
 --6. LOAIBENH (loại bệnh)
 INSERT INTO LOAIBENH (TenBenh) VALUES
-(N'Cảm cúm'),
-(N'Sốt'),
-(N'Đau dạ dày'),
-(N'Dị ứng'),
-(N'Viêm họng'); 
+-- Nội tổng quát (1-5 cũ + mở rộng)
+(N'Cảm cúm'),                       -- 1
+(N'Sốt'),                            -- 2
+(N'Đau dạ dày'),                     -- 3
+(N'Dị ứng'),                         -- 4
+(N'Viêm họng'),                      -- 5
+(N'Đau đầu'),                        -- 6
+(N'Mất ngủ'),                        -- 7
+(N'Táo bón'),                        -- 8
+(N'Tiêu chảy'),                      -- 9
+(N'Viêm loét dạ dày'),               -- 10
+(N'Trào ngược dạ dày'),              -- 11
+(N'Đái tháo đường'),                 -- 12
+(N'Béo phì'),                        -- 13
+(N'Thiếu máu'),                      -- 14
+(N'Suy nhược cơ thể'),               -- 15
+-- Tim Mạch
+(N'Tăng huyết áp'),                  -- 16
+(N'Hạ huyết áp'),                    -- 17
+(N'Rối loạn nhịp tim'),              -- 18
+(N'Suy tim'),                        -- 19
+(N'Xơ vữa động mạch'),               -- 20
+-- Hô Hấp
+(N'Hen suyễn'),                      -- 21
+(N'Viêm phế quản'),                  -- 22
+(N'Viêm phổi'),                      -- 23
+(N'COPD'),                           -- 24
+(N'Viêm xoang'),                     -- 25
+-- Tai Mũi Họng
+(N'Viêm tai giữa'),                  -- 26
+(N'Viêm amidan'),                    -- 27
+(N'Polyp mũi'),                      -- 28
+(N'Ù tai'),                          -- 29
+-- Nhi Khoa
+(N'Sốt xuất huyết'),                 -- 30
+(N'Tay chân miệng'),                 -- 31
+(N'Sởi'),                            -- 32
+(N'Thủy đậu'),                       -- 33
+(N'Rối loạn tiêu hóa trẻ em'),       -- 34
+-- Thần Kinh
+(N'Đau nửa đầu (Migraine)'),         -- 35
+(N'Chóng mặt'),                      -- 36
+(N'Động kinh'),                      -- 37
+(N'Tê liệt'),                        -- 38
+-- Y Học Cổ Truyền
+(N'Đau lưng'),                       -- 39
+(N'Đau cổ vai gáy'),                 -- 40
+(N'Đau khớp'),                       -- 41
+(N'Thoái hóa cột sống'),             -- 42
+-- Mắt
+(N'Viêm kết mạc'),                   -- 43
+(N'Khô mắt'),                        -- 44
+(N'Cận thị'),                        -- 45
+-- Nha Khoa
+(N'Sâu răng'),                       -- 46
+(N'Viêm nướu'),                      -- 47
+(N'Viêm nha chu'),                   -- 48
+-- Da liễu
+(N'Mề đay mãn tính'),                -- 49
+(N'Viêm da tiếp xúc'),               -- 50
+(N'Nấm da'),                         -- 51
+(N'Zona thần kinh'),                 -- 52
+-- Nhiễm trùng
+(N'Nhiễm khuẩn đường tiết niệu'),    -- 53
+(N'Nhiễm giun sán'),                 -- 54
+(N'Nhiễm trùng da'),                 -- 55
+(N'Viêm gan');                       -- 56
 
 --7. CACHDUNG
 INSERT INTO CACHDUNG (MoTaCachDung) VALUES

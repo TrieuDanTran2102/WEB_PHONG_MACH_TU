@@ -416,11 +416,11 @@
 
         <ul class="nav-menu">
             <li><a href="#" class="nav-link active" data-section="profile"><i class="bi bi-person-circle"></i> Hồ Sơ Cá Nhân</a></li>
-            <li><a href="#" class="nav-link" data-section="patient-lookup"><i class="bi bi-search"></i> Tra Cứu BN</a></li>
-            <li><a href="#" class="nav-link" data-section="exam-lookup"><i class="bi bi-search-heart"></i> Tra Cứu Khám</a></li>
+            <li><a href="#" class="nav-link" data-section="patient-lookup"><i class="bi bi-search"></i> Tra Cứu Bệnh Nhân</a></li>
+            <li><a href="#" class="nav-link" data-section="exam-lookup"><i class="bi bi-search-heart"></i> Tra Cứu Phiếu Khám Bệnh</a></li>
             <li><a href="#" class="nav-link" data-section="exam-form"><i class="bi bi-file-earmark-medical"></i> Chi Tiết Phiếu Khám Bệnh</a></li>
-            <li><a href="#" class="nav-link" data-section="medicine-lookup"><i class="bi bi-capsule"></i> Tra Cứu Thuốc</a></li>
-            <li><a href="#" class="nav-link" data-section="disease-lookup"><i class="bi bi-clipboard-pulse"></i> Tra Cứu Bệnh</a></li>
+            <li><a href="#" class="nav-link" data-section="medicine-lookup"><i class="bi bi-capsule"></i> Tra Cứu Danh Sách Thuốc</a></li>
+            <li><a href="#" class="nav-link" data-section="disease-lookup"><i class="bi bi-clipboard-pulse"></i> Tra Cứu Danh Sách Loại Bệnh</a></li>
         </ul>
     </div>
 
@@ -745,14 +745,65 @@
 
                     <div class="form-group">
                         <label class="form-label">Loại Bệnh</label>
-                        <select class="form-select" id="diseaseType">
-                            <option value="">-- Chọn loại bệnh --</option>
-                            <option value="B001">Cảm Cúm</option>
-                            <option value="B002">Viêm Phế Quản</option>
-                            <option value="B003">Đau Đầu</option>
-                            <option value="B004">Rối Loạn Tiêu Hóa</option>
-                            <option value="B005">Viêm Tai Mũi Họng</option>
-                        </select>
+                        <input list="diseaseTypeList" class="form-control" id="diseaseType" placeholder="Nhập hoặc chọn loại bệnh" autocomplete="off">
+                        <datalist id="diseaseTypeList">
+                            <option value="Cảm cúm"></option>
+                            <option value="Sốt"></option>
+                            <option value="Đau dạ dày"></option>
+                            <option value="Dị ứng"></option>
+                            <option value="Viêm họng"></option>
+                            <option value="Đau đầu"></option>
+                            <option value="Mất ngủ"></option>
+                            <option value="Táo bón"></option>
+                            <option value="Tiêu chảy"></option>
+                            <option value="Viêm loét dạ dày"></option>
+                            <option value="Trào ngược dạ dày"></option>
+                            <option value="Đái tháo đường"></option>
+                            <option value="Béo phì"></option>
+                            <option value="Thiếu máu"></option>
+                            <option value="Suy nhược cơ thể"></option>
+                            <option value="Tăng huyết áp"></option>
+                            <option value="Hạ huyết áp"></option>
+                            <option value="Rối loạn nhịp tim"></option>
+                            <option value="Suy tim"></option>
+                            <option value="Xơ vữa động mạch"></option>
+                            <option value="Hen suyễn"></option>
+                            <option value="Viêm phế quản"></option>
+                            <option value="Viêm phổi"></option>
+                            <option value="COPD"></option>
+                            <option value="Viêm xoang"></option>
+                            <option value="Viêm tai giữa"></option>
+                            <option value="Viêm amidan"></option>
+                            <option value="Polyp mũi"></option>
+                            <option value="Ù tai"></option>
+                            <option value="Sốt xuất huyết"></option>
+                            <option value="Tay chân miệng"></option>
+                            <option value="Sởi"></option>
+                            <option value="Thủy đậu"></option>
+                            <option value="Rối loạn tiêu hóa trẻ em"></option>
+                            <option value="Đau nửa đầu (Migraine)"></option>
+                            <option value="Chóng mặt"></option>
+                            <option value="Động kinh"></option>
+                            <option value="Tê liệt"></option>
+                            <option value="Đau lưng"></option>
+                            <option value="Đau cổ vai gáy"></option>
+                            <option value="Đau khớp"></option>
+                            <option value="Thoái hóa cột sống"></option>
+                            <option value="Viêm kết mạc"></option>
+                            <option value="Khô mắt"></option>
+                            <option value="Cận thị"></option>
+                            <option value="Sâu răng"></option>
+                            <option value="Viêm nướu"></option>
+                            <option value="Viêm nha chu"></option>
+                            <option value="Mề đay mãn tính"></option>
+                            <option value="Viêm da tiếp xúc"></option>
+                            <option value="Nấm da"></option>
+                            <option value="Zona thần kinh"></option>
+                            <option value="Nhiễm khuẩn đường tiết niệu"></option>
+                            <option value="Nhiễm giun sán"></option>
+                            <option value="Nhiễm trùng da"></option>
+                            <option value="Viêm gan"></option>
+                        </datalist>
                     </div>
 
                     <!-- PRESCRIPTION -->
@@ -1536,8 +1587,8 @@
 
             // Build payload
             const symptoms = document.getElementById('symptoms').value;
-            const diseaseSel = document.getElementById('diseaseType');
-            const diseaseText = diseaseSel ? (diseaseSel.options[diseaseSel.selectedIndex]?.text || '') : '';
+            const diseaseEl = document.getElementById('diseaseType');
+            const diseaseText = diseaseEl ? (diseaseEl.tagName === 'SELECT' ? (diseaseEl.options[diseaseEl.selectedIndex]?.text || '') : (diseaseEl.value || '')) : '';
             const diseases = [];
             if (diseaseText) {
                 diseases.push({ TenBenh: diseaseText, TrieuChung: symptoms, GhiChu: diagnosis });
