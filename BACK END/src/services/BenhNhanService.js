@@ -13,7 +13,8 @@ class BenhNhanService {
             TenBN: r.TenBN,
             NgaySinh: r.NgaySinh ? (new Date(r.NgaySinh)).toISOString().split('T')[0] : null,
             GioiTinh: r.GioiTinh,
-            NgayTiepNhan: r.NgayTiepNhan ? (new Date(r.NgayTiepNhan)).toISOString().split('T')[0] : null
+            NgayTiepNhan: r.NgayTiepNhan ? (new Date(r.NgayTiepNhan)).toISOString().split('T')[0] : null,
+            DiaChi: r.DiaChi || r.GhiChu || null
         }));
     }
 

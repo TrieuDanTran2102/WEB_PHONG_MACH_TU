@@ -987,7 +987,8 @@
                         </div>
 
                         <div style="display: flex; gap: 10px; margin-top: 20px;">
-                            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Lập Hóa Đơn</button>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-receipt"></i> Lập Hóa Đơn</button>
+                            <button type="button" class="btn btn-info" onclick="printInvoice()"><i class="bi bi-printer"></i> In Hóa Đơn</button>
                             <button type="reset" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Đặt Lại</button>
                         </div>
                     </form>
@@ -2180,22 +2181,23 @@
         // ========== INVOICE FORM SUBMISSION ==========
         document.getElementById('invoiceForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const MaPK = document.getElementById('invoiceMaPK')?.value;
+            let MaPK = (document.getElementById('invoiceMaPK')?.value || '').toString().trim();
             if (!MaPK) {
                 alert('Vui lòng chọn phiếu khám từ "Tra Cứu Phiếu Khám" trước!');
                 return;
             }
             const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
             try {
+                // Send MaPK as string (backend expects NVarChar). Avoid converting to Number which can produce NaN/null.
                 const resp = await fetch('http://localhost:5000/api/hoadon/thanh-toan', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         ...(token ? { Authorization: `Bearer ${token}` } : {})
                     },
-                    body: JSON.stringify({ MaPK: Number(MaPK) })
+                    body: JSON.stringify({ MaPK })
                 });
-                const result = await resp.json();
+                const result = await resp.json().catch(() => ({}));
                 if (!resp.ok) {
                     alert('Lỗi lập hóa đơn: ' + (result.message || 'Không xác định'));
                     return;
@@ -2448,7 +2450,202 @@
             setupDiseaseSuggestions();
         });
 
+
         window.addEventListener('load', loadProfile);
+
+        // ========== PRINT FUNCTIONS ==========
+        // HTML closing tags are split across concatenation so the HTML parser
+        // never sees </tag> sequences inside this <script> block.
+        var _c = '</';  // used to build closing tags safely
+
+        function openPrintWindow(html) {
+            var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+            var url  = URL.createObjectURL(blob);
+            var win  = window.open(url, '_blank', 'width=820,height=720');
+            if (win) {
+                win.onload = function() {
+                    win.print();
+                    URL.revokeObjectURL(url);
+                };
+            }
+        }
+
+        function printPrescription() {
+            var maPK       = (document.getElementById('examMaPK')      || {}).value || '';
+            var hoTen      = (document.getElementById('examHoTen')      || {}).value || '';
+            var ngayKham   = (document.getElementById('examDate')       || {}).value || '';
+            var trieuChung = (document.getElementById('examSymptoms')   || {}).value || '';
+            var chanDoan   = (document.getElementById('examDiagnosis')  || {}).value || '';
+            var loaiBenh   = (document.getElementById('diseaseType')    || {}).value || '';
+            var today      = new Date().toLocaleDateString('vi-VN');
+
+            var bodyRows = '';
+            var hasData  = false;
+            document.querySelectorAll('#prescriptionTable tr').forEach(function(row, idx) {
+                var inputs = row.querySelectorAll('input, select');
+                if (inputs.length < 4) return;
+                hasData = true;
+                function selText(el) { return el.options ? el.options[el.selectedIndex].text : el.value; }
+                var tenThuoc = inputs[0].value || selText(inputs[0]) || '';
+                var donVi    = inputs[1].value || selText(inputs[1]) || '';
+                var soLuong  = inputs[2].value || '';
+                var cachDung = inputs[3].value || selText(inputs[3]) || '';
+                var td = 'td style="border:1px solid #ccc;padding:6px;';
+                bodyRows += '<tr>'
+                    + '<' + td + 'text-align:center;">' + (idx+1) + _c + 'td>'
+                    + '<' + td + '">' + tenThuoc + _c + 'td>'
+                    + '<' + td + 'text-align:center;">' + donVi    + _c + 'td>'
+                    + '<' + td + 'text-align:center;">' + soLuong  + _c + 'td>'
+                    + '<' + td + 'text-align:center;">' + cachDung + _c + 'td>'
+                    + _c + 'tr>';
+            });
+
+            var css = 'body{font-family:Arial,sans-serif;padding:30px;font-size:14px;}'
+                + 'h2{text-align:center;color:#1f3a93;margin-bottom:4px;}'
+                + '.sub{text-align:center;color:#555;margin-bottom:20px;font-size:13px;}'
+                + '.ir{display:flex;gap:40px;margin-bottom:8px;} .ir span{flex:1;}'
+                + 'label{font-weight:bold;}'
+                + 'table{width:100%;border-collapse:collapse;margin-top:16px;}'
+                + 'th{background:#1f3a93;color:white;padding:8px;border:1px solid #ccc;}'
+                + 'td{border:1px solid #ccc;padding:6px;}'
+                + '.footer{margin-top:30px;display:flex;justify-content:space-between;}'
+                + '.sign{text-align:center;width:200px;}'
+                + '@media print{body{padding:10px;}}';
+
+            var noRow = '<tr><' + 'td colspan="5" style="text-align:center;padding:10px;">Không có thuốc trong đơn' + _c + 'td>' + _c + 'tr>';
+
+            var html = '<!DOCTYPE html>'
+                + '<html lang="vi"><head><meta charset="UTF-8">'
+                + '<title>Don Thuoc - ' + maPK + _c + 'title>'
+                + '<style>' + css + _c + 'style>'
+                + _c + 'head><body>'
+                + '<h2>PHÒNG KHÁM ĐA KHOA' + _c + 'h2>'
+                + '<div class="sub">ĐƠN THUỐC' + _c + 'div><hr>'
+                + '<div class="ir"><span><label>Mã phiếu khám:' + _c + 'label> ' + maPK
+                +   + _c + 'span><span><label>Ngày khám:' + _c + 'label> ' + ngayKham + _c + 'span>' + _c + 'div>'
+                + '<div class="ir"><span><label>Họ và tên:' + _c + 'label> ' + hoTen
+                +   + _c + 'span><span><label>Loại bệnh:' + _c + 'label> ' + loaiBenh + _c + 'span>' + _c + 'div>'
+                + '<div style="margin-bottom:8px;"><label>Triệu chứng:' + _c + 'label> ' + trieuChung + _c + 'div>'
+                + '<div style="margin-bottom:8px;"><label>Chẩn đoán:' + _c + 'label> ' + chanDoan + _c + 'div>'
+                + '<table><thead><tr>'
+                + '<th width="5%">STT' + _c + 'th>'
+                + '<th width="35%">Tên Thuốc' + _c + 'th>'
+                + '<th width="15%">Đơn Vị' + _c + 'th>'
+                + '<th width="15%">Số Lượng' + _c + 'th>'
+                + '<th width="30%">Cách Dùng' + _c + 'th>'
+                + _c + 'tr>' + _c + 'thead>'
+                + '<tbody>' + (hasData ? bodyRows : noRow) + _c + 'tbody>'
+                + _c + 'table>'
+                + '<div class="footer">'
+                + '<div class="sign"><div>Ngày in: ' + today + _c + 'div>' + _c + 'div>'
+                + '<div class="sign"><div>Bác Sĩ Điều Trị' + _c + 'div><br><br><br><div>_________________' + _c + 'div>' + _c + 'div>'
+                + _c + 'div>'
+                + _c + 'body>' + _c + 'html>';
+
+            openPrintWindow(html);
+        }
+
+        function printInvoice() {
+            var maHD      = (document.getElementById('invoiceMaHD')     || {}).value       || '(Chưa lập)';
+            var maPK      = (document.getElementById('invoiceMaPK')     || {}).value       || '';
+            var ngayHD    = (document.getElementById('invoiceDate')     || {}).value       || '';
+            var hoTen     = (document.getElementById('invoiceHoTen')    || {}).value       || '';
+            var cccd      = (document.getElementById('invoiceCCCD')     || {}).value       || '';
+            var diaChi    = (document.getElementById('invoiceDiaChi')   || {}).value       || '';
+            var ngaySinh  = (document.getElementById('invoiceNgaySinh') || {}).value       || '';
+            var gioiTinh  = (document.getElementById('invoiceGioiTinh') || {}).value       || '';
+            var sdt       = (document.getElementById('invoiceSDT')      || {}).value       || '';
+            var tienKham  = (document.getElementById('examinationFee')  || {}).textContent || '30,000 VND';
+            var tienThuoc = (document.getElementById('medicineFee')     || {}).textContent || '0 VND';
+            var tongTien  = (document.getElementById('totalAmount')     || {}).textContent || '30,000 VND';
+            var today     = new Date().toLocaleDateString('vi-VN');
+
+            var invoiceBodyRows = '';
+            var hasItems = false;
+            document.querySelectorAll('#invoiceTable tr').forEach(function(row, idx) {
+                var inputs    = row.querySelectorAll('input');
+                var selects   = row.querySelectorAll('select');
+                var totalCell = row.querySelector('.invoice-total');
+                if (inputs.length < 2) return;
+                hasItems = true;
+                var tenThuoc  = inputs[0].value || '';
+                var donVi     = selects.length > 0 ? selects[0].value : '';
+                var soLuong   = inputs[1].value || '';
+                var donGia    = inputs[inputs.length - 1].value || '';
+                var thanhTien = totalCell ? totalCell.textContent : '0 VND';
+                var td = 'td style="border:1px solid #ccc;padding:6px;';
+                invoiceBodyRows += '<tr>'
+                    + '<' + td + 'text-align:center;">' + (idx+1) + _c + 'td>'
+                    + '<' + td + '">' + tenThuoc + _c + 'td>'
+                    + '<' + td + 'text-align:center;">' + donVi + _c + 'td>'
+                    + '<' + td + 'text-align:center;">' + soLuong + _c + 'td>'
+                    + '<' + td + 'text-align:right;">' + Number(donGia).toLocaleString('vi-VN') + _c + 'td>'
+                    + '<' + td + 'text-align:right;">' + thanhTien + _c + 'td>'
+                    + _c + 'tr>';
+            });
+
+            var css = 'body{font-family:Arial,sans-serif;padding:30px;font-size:14px;}'
+                + 'h2{text-align:center;color:#1f3a93;margin-bottom:4px;}'
+                + '.sub{text-align:center;color:#555;margin-bottom:20px;font-size:13px;}'
+                + '.ig{display:grid;grid-template-columns:1fr 1fr;gap:6px 30px;margin-bottom:14px;}'
+                + 'label{font-weight:bold;}'
+                + 'table{width:100%;border-collapse:collapse;margin-top:16px;}'
+                + 'th{background:#1f3a93;color:white;padding:8px;border:1px solid #ccc;}'
+                + 'td{border:1px solid #ccc;padding:6px;}'
+                + '.sm{margin-top:16px;text-align:right;}'
+                + '.sr{display:flex;justify-content:flex-end;gap:20px;padding:4px 0;}'
+                + '.st{font-size:16px;font-weight:bold;border-top:2px solid #1f3a93;padding-top:8px;color:#1f3a93;}'
+                + '.footer{margin-top:30px;display:flex;justify-content:space-between;}'
+                + '.sign{text-align:center;width:200px;}'
+                + '@media print{body{padding:10px;}}';
+
+            var noItemRow = '<tr><' + 'td colspan="6" style="text-align:center;padding:10px;">Không có thuốc trong hóa đơn' + _c + 'td>' + _c + 'tr>';
+
+            var info = '<div class="ig">'
+                + '<span><label>Mã hóa đơn:' + _c + 'label> ' + maHD + _c + 'span>'
+                + '<span><label>Mã phiếu khám:' + _c + 'label> ' + maPK + _c + 'span>'
+                + '<span><label>Ngày xuất hóa đơn:' + _c + 'label> ' + ngayHD + _c + 'span>'
+                + '<span><label>Họ và tên:' + _c + 'label> ' + hoTen + _c + 'span>'
+                + '<span><label>CCCD:' + _c + 'label> ' + cccd + _c + 'span>'
+                + '<span><label>Ngày sinh:' + _c + 'label> ' + ngaySinh + _c + 'span>'
+                + '<span><label>Giới tính:' + _c + 'label> ' + gioiTinh + _c + 'span>'
+                + '<span><label>Số điện thoại:' + _c + 'label> ' + sdt + _c + 'span>'
+                + '<span><label>Địa chỉ:' + _c + 'label> ' + diaChi + _c + 'span>'
+                + _c + 'div>';
+
+            var summary = '<div class="sm">'
+                + '<div class="sr"><span>Tiền khám:' + _c + 'span><span style="width:150px;text-align:right;">' + tienKham + _c + 'span>' + _c + 'div>'
+                + '<div class="sr"><span>Tiền thuốc:' + _c + 'span><span style="width:150px;text-align:right;">' + tienThuoc + _c + 'span>' + _c + 'div>'
+                + '<div class="sr st"><span>TỔNG CỘNG:' + _c + 'span><span style="width:150px;text-align:right;">' + tongTien + _c + 'span>' + _c + 'div>'
+                + _c + 'div>';
+
+            var html = '<!DOCTYPE html>'
+                + '<html lang="vi"><head><meta charset="UTF-8">'
+                + '<title>Hoa Don - ' + maHD + _c + 'title>'
+                + '<style>' + css + _c + 'style>'
+                + _c + 'head><body>'
+                + '<h2>PHÒNG KHÁM ĐA KHOA' + _c + 'h2>'
+                + '<div class="sub">HÓA ĐƠN THANH TOÁN' + _c + 'div><hr>'
+                + info
+                + '<table><thead><tr>'
+                + '<th width="5%">STT' + _c + 'th>'
+                + '<th width="30%">Tên Thuốc' + _c + 'th>'
+                + '<th width="12%">Đơn Vị' + _c + 'th>'
+                + '<th width="12%">Số Lượng' + _c + 'th>'
+                + '<th width="20%">Đơn Giá (VND)' + _c + 'th>'
+                + '<th width="21%">Thành Tiền (VND)' + _c + 'th>'
+                + _c + 'tr>' + _c + 'thead>'
+                + '<tbody>' + (hasItems ? invoiceBodyRows : noItemRow) + _c + 'tbody>'
+                + _c + 'table>'
+                + summary
+                + '<div class="footer">'
+                + '<div class="sign"><div>Ngày in: ' + today + _c + 'div>' + _c + 'div>'
+                + '<div class="sign"><div>Người Thu Ngân' + _c + 'div><br><br><br><div>_________________' + _c + 'div>' + _c + 'div>'
+                + _c + 'div>'
+                + _c + 'body>' + _c + 'html>';
+
+            openPrintWindow(html);
+        }
     </script>
 </body>
 </html>

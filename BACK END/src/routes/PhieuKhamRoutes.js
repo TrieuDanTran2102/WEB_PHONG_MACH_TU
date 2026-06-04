@@ -49,6 +49,13 @@ router.get(
     PhieuKhamController.GetPrescriptionsByMaPK
 );
 
+router.put(
+    '/:maPK',
+    XacThuc,
+    PhanQuyen('BacSi', 'Admin'),
+    PhieuKhamController.SaveDetails
+);
+
 router.delete(
     '/:maPK/prescriptions/:maThuoc',
     XacThuc,

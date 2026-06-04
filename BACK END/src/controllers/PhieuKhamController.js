@@ -106,6 +106,23 @@ class PhieuKhamController {
         }
     }
 
+    async SaveDetails(req, res) {
+        try {
+            const MaPK = parseInt(req.params.maPK, 10);
+            if (isNaN(MaPK)) return res.status(400).json({ status: 'error', message: 'Mã phiếu khám không hợp lệ' });
+
+            const payload = req.body || {};
+            // MaNV of the doctor saving (from token)
+            const MaNV = req.user?.maNV || null;
+
+            const result = await PhieuKhamService.SavePhieuKhamDetails(MaPK, MaNV, payload);
+            res.status(200).json({ status: 'success', message: 'Lưu phiếu khám thành công', data: result });
+        } catch (err) {
+            console.error('Error in SaveDetails:', err);
+            res.status(err.status || 400).json({ status: 'error', message: err.message || 'Lỗi khi lưu phiếu khám' });
+        }
+    }
+
     // Tạo phiếu khám cho bệnh nhân đã tồn tại (backfill / khi cần tạo thủ công)
     async CreateForPatient(req, res) {
         try {

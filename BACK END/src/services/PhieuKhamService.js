@@ -132,6 +132,26 @@ class PhieuKhamService {
         await PhieuKhamRepo.DeletePrescription(MaPK, MaThuoc);
         return true;
     }
+
+    /**
+     * Save/update details of a phieu kham: symptoms -> CT_LOAIBENH, diseases (LOAIBENH creation if needed),
+     * prescriptions -> CT_PHIEUKHAM. This should run in a transaction to keep consistency.
+     * payload expected shape:
+     * {
+     *   symptoms: '...',
+     *   diagnosis: '...',
+     *   diseases: [{ MaLoaiBenh, TenBenh, TrieuChung, GhiChu }],
+     *   prescriptions: [{ MaThuoc, SoLuongThuoc, DonGiaBan, CachDung }]
+     * }
+     */
+    async SavePhieuKhamDetails(MaPK, MaNV, payload) {
+        // Validate
+        if (!MaPK) throw { status: 400, message: 'Mã phiếu khám không hợp lệ' };
+
+        // Delegate to repository which will perform transactional SQL operations
+        const result = await PhieuKhamRepo.SaveDetails(MaPK, MaNV, payload);
+        return result;
+    }
 }
 
 module.exports = new PhieuKhamService();

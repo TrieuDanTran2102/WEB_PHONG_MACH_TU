@@ -14,11 +14,11 @@ class BenhNhanRepo {
         const pool = await poolPromise;
         const result = await pool.request()
             .query(`
-                SELECT b.MaBN, b.TenBN, b.NgaySinh, b.GioiTinh,
-                       MAX(pk.NgayKham) AS NgayTiepNhan
-                FROM BENHNHAN b
-                LEFT JOIN PHIEUKHAM pk ON pk.MaBN = b.MaBN
-                GROUP BY b.MaBN, b.TenBN, b.NgaySinh, b.GioiTinh
+                  SELECT b.MaBN, b.TenBN, b.NgaySinh, b.GioiTinh, b.DiaChi,
+                      MAX(pk.NgayKham) AS NgayTiepNhan
+                  FROM BENHNHAN b
+                  LEFT JOIN PHIEUKHAM pk ON pk.MaBN = b.MaBN
+                  GROUP BY b.MaBN, b.TenBN, b.NgaySinh, b.GioiTinh, b.DiaChi
                 ORDER BY b.MaBN ASC
             `);
         return result.recordset;
