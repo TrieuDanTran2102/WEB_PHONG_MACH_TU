@@ -15,7 +15,7 @@ class LoaiBenhRepo {
                     FOR XML PATH('')
                 ),1,2,''), '') AS MoTa
             FROM LOAIBENH lb
-            ORDER BY lb.TenBenh
+            ORDER BY lb.MaLoaiBenh
         `);
         return result.recordset;
     }

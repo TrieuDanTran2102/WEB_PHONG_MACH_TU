@@ -255,12 +255,38 @@ INSERT INTO DONVITINH (TenDVT) VALUES
 
 --9. THUOC
 INSERT INTO THUOC (TenThuoc, DonGiaBan, SoLuongTon, MaCachDung, MaDVT) VALUES
-(N'Paracetamol', 5000, 100, 1, 1),
-(N'Amoxicillin', 10000, 80, 3, 1),
-(N'Vitamin C', 3000, 200, 5, 1),
-(N'Efferalgan', 7000, 120, 2, 1),
-(N'Sirô ho', 25000, 50, 4, 2);
-
+(N'Paracetamol',       5000, 100, 1, 1),
+(N'Amoxicillin',      10000,  80, 3, 1),
+(N'Vitamin C',         3000, 200, 5, 1),
+(N'Efferalgan',        7000, 120, 2, 1),
+(N'Sirô ho',          25000,  50, 4, 2),
+(N'Ibuprofen',         2000,  50, 3, 1),
+(N'Aspirin',            800,  80, 1, 1),
+(N'Metformin',         1500, 120, 3, 1),
+(N'Lisinopril',        2500,  90, 1, 1),
+(N'Omeprazole',        2000,  75, 1, 1),
+(N'Cephalexin',        3500,  55, 5, 1),
+(N'Loratadine',        1200, 110, 1, 1),
+(N'Fluticasone',       5000,  30, 3, 2),
+(N'Salbutamol',        4500,  25, 4, 2),
+(N'Dexamethasone',     1800,  40, 3, 1),
+(N'Ciprofloxacin',     2200,  65, 3, 1),
+(N'Azithromycin',      3200,  50, 1, 1),
+(N'Ambroxol',           900, 150, 4, 1),
+(N'Guaifenesin',       4000,  35, 3, 2),
+(N'Hydrocodone',       4800,  30, 5, 1),
+(N'Diphenhydramine',   1100,  85, 1, 1),
+(N'Cetirizine',         950, 130, 1, 1),
+(N'Acyclovir',         3800,  45, 5, 1),
+(N'Nystatin',          5500,  20, 3, 2),
+(N'Albendazole',       2300,  55, 3, 1),
+(N'Mebendazole',       2100,  60, 4, 1),
+(N'Pyrantel Pamoate',  4200,  25, 1, 2),
+(N'Tetracycline',      1900,  70, 5, 1),
+(N'Doxycycline',       2400,  65, 3, 1),
+(N'Clarithromycin',    3100,  50, 3, 1),
+(N'Clindamycin',       2600,  55, 4, 1),
+(N'Metronidazole',     1400,  80, 4, 1);
 
 --10.PHIEUKHAM
 INSERT INTO PHIEUKHAM(MaNV, MaBN, NgayKham) VALUES

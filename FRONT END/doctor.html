@@ -554,19 +554,79 @@
                                     <th>Năm Sinh</th>
                                     <th>Giới Tính</th>
                                     <th>Ngày Tiếp Nhận</th>
-                                    <th>Địa Chỉ</th>
+                                    <th>Hành Động</th>
                                 </tr>
                             </thead>
                             <tbody id="patientSearchResults">
                                 <tr>
-                                    <td colspan="6" class="no-results">Nhập thông tin tìm kiếm...</td>
+                                    <td colspan="6" class="no-results">Đang tải dữ liệu...</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+                    <div id="patientPagination" style="display:flex; justify-content:center; margin-top:12px;"></div>
                 </div>
             </div>
         </div>
+
+        <!-- MODAL HỒ SƠ BỆNH NHÂN (DOCTOR) -->
+        <div id="doctorPatientModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:28px; border-radius:14px; box-shadow:0 8px 40px rgba(0,0,0,0.25); z-index:1002; width:860px; max-width:96%; max-height:90vh; overflow-y:auto;">
+            <h4 style="color:#1f3a93; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                <i class="bi bi-person-vcard"></i> Hồ Sơ Bệnh Nhân
+            </h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:6px;">
+                <div>
+                    <label style="font-weight:600; color:#666; font-size:12px; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em;">Họ và Tên</label>
+                    <p id="docModalTenBN" style="margin:0; color:#1f3a93; font-weight:700; font-size:16px;">—</p>
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#666; font-size:12px; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em;">Ngày Sinh</label>
+                    <p id="docModalNgaySinh" style="margin:0; color:#1f3a93; font-weight:600;">—</p>
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#666; font-size:12px; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em;">Giới Tính</label>
+                    <p id="docModalGioiTinh" style="margin:0; color:#1f3a93; font-weight:600;">—</p>
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#666; font-size:12px; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em;">CCCD</label>
+                    <p id="docModalCCCD" style="margin:0; color:#1f3a93; font-weight:600;">—</p>
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#666; font-size:12px; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em;">Số Điện Thoại</label>
+                    <p id="docModalSDT" style="margin:0; color:#1f3a93; font-weight:600;">—</p>
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#666; font-size:12px; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em;">Địa Chỉ</label>
+                    <p id="docModalDiaChi" style="margin:0; color:#1f3a93; font-weight:600;">—</p>
+                </div>
+            </div>
+
+            <h5 style="margin-top:20px; color:#1f3a93; border-top:1px solid #e0e0e0; padding-top:16px; display:flex; align-items:center; gap:8px;">
+                <i class="bi bi-clock-history"></i> Lịch Sử Khám Bệnh (5 Năm Gần Đây)
+            </h5>
+            <div style="max-height:240px; overflow-y:auto; margin-top:8px; border-radius:8px; border:1px solid #e0e0e0;">
+                <table class="table table-hover" style="margin:0;">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã Phiếu Khám</th>
+                            <th>Loại Bệnh</th>
+                            <th>Ngày Khám</th>
+                        </tr>
+                    </thead>
+                    <tbody id="docModalHistoryTable">
+                        <tr><td colspan="4" class="text-center text-muted">Không có dữ liệu</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+                <button class="btn btn-secondary" onclick="closeDoctorPatientModal()">
+                    <i class="bi bi-x-circle"></i> Đóng
+                </button>
+            </div>
+        </div>
+        <div id="doctorPatientModalOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1001;" onclick="closeDoctorPatientModal()"></div>
 
         <!-- 3. MEDICAL EXAMINATION LOOKUP SECTION -->
         <div id="exam-lookup" class="content-section">
@@ -1092,17 +1152,7 @@
 
         function renderPatientRows(list, page = 1) {
             const results = document.getElementById('patientSearchResults');
-            let paginationContainer = document.getElementById('patientPagination');
-            // create pagination container if missing (attach under card-body)
-            if (!paginationContainer) {
-                paginationContainer = document.createElement('div');
-                paginationContainer.id = 'patientPagination';
-                paginationContainer.style.display = 'flex';
-                paginationContainer.style.justifyContent = 'center';
-                paginationContainer.style.marginTop = '12px';
-                const cardBody = document.querySelector('#patient-lookup .card-body');
-                if (cardBody) cardBody.appendChild(paginationContainer);
-            }
+            const paginationContainer = document.getElementById('patientPagination');
 
             currentPatientList = list || [];
             if (!currentPatientList || currentPatientList.length === 0) {
@@ -1121,16 +1171,22 @@
             const end = start + PATIENTS_PER_PAGE;
             const pageItems = currentPatientList.slice(start, end);
 
-            results.innerHTML = pageItems.map(p => `
-                <tr>
-                    <td>${p.MaBN}</td>
-                    <td>${p.TenBN || '-'}</td>
-                    <td>${formatDate(p.NgaySinh) || '-'}</td>
-                    <td><span class="badge ${p.GioiTinh === 'Nam' ? 'bg-primary' : 'bg-info'}">${p.GioiTinh || '-'}</span></td>
-                    <td>${formatDate(p.NgayTiepNhan || p.NgayKham) || '-'}</td>
-                    <td>${p.DiaChi || p.GhiChu || '-'}</td>
-                </tr>
-            `).join('');
+            results.innerHTML = pageItems.map(p => {
+                const birthYear = p.NgaySinh ? new Date(p.NgaySinh).getFullYear() : '-';
+                return `
+                    <tr>
+                        <td>${p.MaBN}</td>
+                        <td>${p.TenBN || '-'}</td>
+                        <td>${birthYear}</td>
+                        <td><span class="badge ${p.GioiTinh === 'Nam' ? 'bg-primary' : 'bg-info'}">${p.GioiTinh || '-'}</span></td>
+                        <td>${p.NgayTiepNhan || '-'}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="viewDoctorPatientDetail('${p.MaBN}')">
+                                <i class="bi bi-eye"></i> Xem chi tiết
+                            </button>
+                        </td>
+                    </tr>`;
+            }).join('');
 
             // render pagination controls using existing helper
             paginationContainer.innerHTML = renderPaginationControls(totalPages, currentPatientPage, (p) => renderPatientRows(currentPatientList, p), 'patientPagination');
@@ -1838,6 +1894,80 @@ Ngày in: ${new Date().toLocaleDateString('vi-VN')}
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('examDate').value = today;
         });
+
+        // ========== XEM HỒ SƠ BỆNH NHÂN (DOCTOR MODAL) ==========
+        async function viewDoctorPatientDetail(maBN) {
+            try {
+                // Lấy CCCD từ cache hoặc gọi API riêng
+                let cccd = null;
+                if (patientsCache) {
+                    const found = patientsCache.find(p => String(p.MaBN) === String(maBN));
+                    cccd = found && found.CCCD;
+                }
+                if (!cccd) {
+                    const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                    const resp = await fetch(`${API_BASE_URL}/benh-nhan`, {
+                        headers: { Authorization: token ? `Bearer ${token}` : '' }
+                    });
+                    if (resp.ok) {
+                        const pl = await resp.json();
+                        const found = (pl.data || []).find(f => String(f.MaBN) === String(maBN));
+                        cccd = found && found.CCCD;
+                    }
+                }
+                if (!cccd) { alert('Không tìm thấy CCCD của bệnh nhân này.'); return; }
+
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const resp = await fetch(`${API_BASE_URL}/benh-nhan/by-cccd/${encodeURIComponent(cccd)}?years=5`, {
+                    headers: { Authorization: token ? `Bearer ${token}` : '' }
+                });
+                if (!resp.ok) { alert('Lỗi khi lấy dữ liệu bệnh nhân.'); return; }
+
+                const payload = await resp.json();
+                const data = payload.data || {};
+                const profile = data.profile || {};
+                const history = data.history || [];
+
+                // Điền thông tin hồ sơ vào modal
+                const setTxt = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = val || '—';
+                };
+                setTxt('docModalTenBN', profile.TenBN);
+                setTxt('docModalNgaySinh', profile.NgaySinh ? formatDate(profile.NgaySinh) : null);
+                setTxt('docModalGioiTinh', profile.GioiTinh);
+                setTxt('docModalCCCD', profile.CCCD);
+                setTxt('docModalSDT', profile.SDT);
+                setTxt('docModalDiaChi', profile.DiaChi);
+
+                // Điền lịch sử khám
+                const histTbody = document.getElementById('docModalHistoryTable');
+                if (!history || history.length === 0) {
+                    histTbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:16px;">Không có lịch sử khám trong 5 năm gần đây</td></tr>';
+                } else {
+                    histTbody.innerHTML = history.map((h, idx) => `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td><strong>${h.MaPK}</strong></td>
+                            <td>${h.TenBenh || '-'}</td>
+                            <td>${h.NgayKham || '-'}</td>
+                        </tr>`).join('');
+                }
+
+                // Hiện modal + overlay
+                document.getElementById('doctorPatientModal').style.display = 'block';
+                document.getElementById('doctorPatientModalOverlay').style.display = 'block';
+            } catch (err) {
+                console.error('viewDoctorPatientDetail error:', err);
+                alert('Lỗi kết nối: ' + err.message);
+            }
+        }
+
+        function closeDoctorPatientModal() {
+            document.getElementById('doctorPatientModal').style.display = 'none';
+            document.getElementById('doctorPatientModalOverlay').style.display = 'none';
+        }
+
     </script>
 </body>
 </html>

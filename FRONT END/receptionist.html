@@ -214,6 +214,8 @@
         .table tbody td {
             padding: 12px 15px;
             vertical-align: middle;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .table tbody tr:hover {
@@ -802,7 +804,16 @@
                         <button class="btn btn-primary" onclick="searchExam()"><i class="bi bi-search"></i> Tìm Kiếm</button>
                     </div>
 
-                    <table class="table table-hover">
+                    <table class="table table-hover" style="table-layout: fixed; width: 100%;">
+                        <colgroup>
+                            <col style="width: 6%;">
+                            <col style="width: 16%;">
+                            <col style="width: 24%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 18%;">
+                            <col style="width: 16%;">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>STT</th>
@@ -836,7 +847,14 @@
                         <button class="btn btn-primary" onclick="searchMedicine()"><i class="bi bi-search"></i> Tìm Kiếm</button>
                     </div>
 
-                    <table class="table table-hover">
+                    <table class="table table-hover" style="table-layout: fixed; width: 100%;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 12%;">
+                            <col style="width: 12%;">
+                            <col style="width: 18%;">
+                            <col style="width: 28%;">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>Tên Thuốc</th>
@@ -868,7 +886,12 @@
                         <button class="btn btn-primary" onclick="searchDisease()"><i class="bi bi-search"></i> Tìm Kiếm</button>
                     </div>
 
-                    <table class="table table-hover">
+                    <table class="table table-hover" style="table-layout: fixed; width: 100%;">
+                        <colgroup>
+                            <col style="width: 15%;">
+                            <col style="width: 25%;">
+                            <col style="width: 60%;">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>Mã Loại Bệnh</th>
@@ -1736,6 +1759,13 @@
             document.getElementById('modalOverlay').style.display = 'none';
         }
 
+        // Đóng modal khi click vào overlay bên ngoài
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'modalOverlay') {
+                closeEditModal();
+            }
+        });
+
         async function savePatientUpdate() {
                 // Use CCCD to update the record in DB
                 const cccd = document.getElementById('editPatientCCCD').value;
@@ -1843,10 +1873,10 @@
             `).join('');
 
             // render pagination
-            paginationContainer.innerHTML = renderPaginationControls(totalPages, currentMedicinePage, (p) => renderMedicineRows(currentMedicineList, p));
+            paginationContainer.innerHTML = renderPaginationControls(totalPages, currentMedicinePage, (p) => renderMedicineRows(currentMedicineList, p), 'medicinePagination');
         }
 
-        function renderPaginationControls(totalPages, currentPage, onPage) {
+        function renderPaginationControls(totalPages, currentPage, onPage, containerId) {
             const parts = [];
             function pageButton(n, label, active = false) {
                 return `<button class="page-btn" data-page="${n}" style="margin:0 6px; padding:8px 12px; border-radius:6px; border:1px solid #ccc; background:${active ? '#e74c3c' : 'white'}; color:${active ? 'white' : '#333'};">${label}</button>`;
@@ -1878,9 +1908,9 @@
 
             parts.push(`<button class="page-nav" data-page="${Math.min(totalPages, currentPage+1)}" style="margin:0 8px;">&rarr;</button>`);
 
-            // attach events after DOM insert by returning html and letting caller set handlers via delegation
+            // attach events using the correct containerId passed by caller
             setTimeout(() => {
-                const container = document.getElementById('medicinePagination');
+                const container = document.getElementById(containerId || 'medicinePagination');
                 if (!container) return;
                 container.querySelectorAll('.page-btn, .page-nav').forEach(btn => {
                     btn.onclick = () => {
@@ -1956,6 +1986,8 @@
         }
 
         function renderDiseaseRows(list, page = 1) {
+            // Luôn sort theo MaLoaiBenh tăng dần
+            const sortedList = [...(list || [])].sort((a, b) => a.MaLoaiBenh - b.MaLoaiBenh);
             const results = document.getElementById('diseaseSearchResults');
             const paginationContainerId = 'diseasePagination';
             let paginationContainer = document.getElementById(paginationContainerId);
@@ -1969,7 +2001,7 @@
                 if (cardBody) cardBody.appendChild(paginationContainer);
             }
 
-            currentDiseaseList = list || [];
+            currentDiseaseList = sortedList;
             if (!currentDiseaseList || currentDiseaseList.length === 0) {
                 results.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Không có dữ liệu</td></tr>';
                 paginationContainer.innerHTML = '';
@@ -1994,7 +2026,7 @@
                 </tr>
             `).join('');
 
-            paginationContainer.innerHTML = renderPaginationControls(totalPages, currentDiseasePage, (p) => renderDiseaseRows(currentDiseaseList, p));
+            paginationContainer.innerHTML = renderPaginationControls(totalPages, currentDiseasePage, (p) => renderDiseaseRows(currentDiseaseList, p), 'diseasePagination');
         }
 
         async function searchDisease() {
