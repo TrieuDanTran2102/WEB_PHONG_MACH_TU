@@ -745,64 +745,14 @@
 
                     <div class="form-group">
                         <label class="form-label">Loại Bệnh</label>
-                        <input list="diseaseTypeList" class="form-control" id="diseaseType" placeholder="Nhập hoặc chọn loại bệnh" autocomplete="off">
+                        <input type="text"
+                               id="diseaseType"
+                               class="form-control"
+                               list="diseaseTypeList"
+                               placeholder="Gõ tên loại bệnh để tìm hoặc chọn..."
+                               autocomplete="off">
                         <datalist id="diseaseTypeList">
-                            <option value="Cảm cúm"></option>
-                            <option value="Sốt"></option>
-                            <option value="Đau dạ dày"></option>
-                            <option value="Dị ứng"></option>
-                            <option value="Viêm họng"></option>
-                            <option value="Đau đầu"></option>
-                            <option value="Mất ngủ"></option>
-                            <option value="Táo bón"></option>
-                            <option value="Tiêu chảy"></option>
-                            <option value="Viêm loét dạ dày"></option>
-                            <option value="Trào ngược dạ dày"></option>
-                            <option value="Đái tháo đường"></option>
-                            <option value="Béo phì"></option>
-                            <option value="Thiếu máu"></option>
-                            <option value="Suy nhược cơ thể"></option>
-                            <option value="Tăng huyết áp"></option>
-                            <option value="Hạ huyết áp"></option>
-                            <option value="Rối loạn nhịp tim"></option>
-                            <option value="Suy tim"></option>
-                            <option value="Xơ vữa động mạch"></option>
-                            <option value="Hen suyễn"></option>
-                            <option value="Viêm phế quản"></option>
-                            <option value="Viêm phổi"></option>
-                            <option value="COPD"></option>
-                            <option value="Viêm xoang"></option>
-                            <option value="Viêm tai giữa"></option>
-                            <option value="Viêm amidan"></option>
-                            <option value="Polyp mũi"></option>
-                            <option value="Ù tai"></option>
-                            <option value="Sốt xuất huyết"></option>
-                            <option value="Tay chân miệng"></option>
-                            <option value="Sởi"></option>
-                            <option value="Thủy đậu"></option>
-                            <option value="Rối loạn tiêu hóa trẻ em"></option>
-                            <option value="Đau nửa đầu (Migraine)"></option>
-                            <option value="Chóng mặt"></option>
-                            <option value="Động kinh"></option>
-                            <option value="Tê liệt"></option>
-                            <option value="Đau lưng"></option>
-                            <option value="Đau cổ vai gáy"></option>
-                            <option value="Đau khớp"></option>
-                            <option value="Thoái hóa cột sống"></option>
-                            <option value="Viêm kết mạc"></option>
-                            <option value="Khô mắt"></option>
-                            <option value="Cận thị"></option>
-                            <option value="Sâu răng"></option>
-                            <option value="Viêm nướu"></option>
-                            <option value="Viêm nha chu"></option>
-                            <option value="Mề đay mãn tính"></option>
-                            <option value="Viêm da tiếp xúc"></option>
-                            <option value="Nấm da"></option>
-                            <option value="Zona thần kinh"></option>
-                            <option value="Nhiễm khuẩn đường tiết niệu"></option>
-                            <option value="Nhiễm giun sán"></option>
-                            <option value="Nhiễm trùng da"></option>
-                            <option value="Viêm gan"></option>
+                            <!-- Điền động từ API /api/benh khi trang load -->
                         </datalist>
                     </div>
 
@@ -1587,8 +1537,7 @@
 
             // Build payload
             const symptoms = document.getElementById('symptoms').value;
-            const diseaseEl = document.getElementById('diseaseType');
-            const diseaseText = diseaseEl ? (diseaseEl.tagName === 'SELECT' ? (diseaseEl.options[diseaseEl.selectedIndex]?.text || '') : (diseaseEl.value || '')) : '';
+            const diseaseText = (document.getElementById('diseaseType')?.value || '').trim();
             const diseases = [];
             if (diseaseText) {
                 diseases.push({ TenBenh: diseaseText, TrieuChung: symptoms, GhiChu: diagnosis });
@@ -1938,12 +1887,34 @@ Ngày in: ${new Date().toLocaleDateString('vi-VN')}
             renderDiseaseRows(filtered);
         }
 
+        // ========== LOAD LOẠI BỆNH TỪ DATABASE ==========
+        async function loadDiseaseOptions() {
+            try {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const resp = await fetch(`${API_BASE_URL}/benh`, {
+                    headers: { Authorization: token ? `Bearer ${token}` : '' }
+                });
+                if (!resp.ok) return;
+                const payload = await resp.json();
+                const list = (payload.data || []).sort((a, b) => a.MaLoaiBenh - b.MaLoaiBenh);
+                const datalist = document.getElementById('diseaseTypeList');
+                if (!datalist) return;
+                datalist.innerHTML = list.map(d =>
+                    `<option value="${d.TenBenh}">${d.TenBenh}</option>`
+                ).join('');
+            } catch (err) {
+                console.warn('Không thể tải danh sách loại bệnh:', err);
+            }
+        }
+
         // Initialize prescription table on page load
         window.addEventListener('DOMContentLoaded', function() {
             renderPrescriptionTable();
             // Set today's date as default
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('examDate').value = today;
+            // Load danh sách loại bệnh từ DB
+            loadDiseaseOptions();
         });
 
         // ========== XEM HỒ SƠ BỆNH NHÂN (DOCTOR MODAL) ==========
